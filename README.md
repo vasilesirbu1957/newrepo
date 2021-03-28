@@ -1,6 +1,8 @@
-this is a threejs example from https://threejsfundamentals.org/threejs/lessons/threejs-load-gltf.html It loads six images:
-https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg ... /flower-6.jpg and loads a 3D gltf city model. 
-This model can be rotated as well as zoomed in/out.
+this is a threejs example from https://threejsfundamentals.org/threejs/lessons/threejs-load-gltf.html 
+It loads six images:
+https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg ... /flower-6.jpg 
+and loads a 3D gltf city model. 
+This model can be rotated and zoomed in/out.
 
 to run this example:
 
