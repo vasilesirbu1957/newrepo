@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title> threejsfundamentals.org - Three.js Loading a .GLTF File </title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+
+  <!-- the styles for this page in the local file main.css (in the /static/ directory mandatory!!!)-->
+  <!-- <link href="/static/css/main.css" rel="stylesheet" type="text/css"> -->
+  <div>
+    <table style="width:100%">
+      <tr>
+        <th>
+          <img id='image01' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image02' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image03' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image04' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image05' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg'  height=128 width=128/>
+          <!-- <canvas id="canvas02"  height=128 width=128 />  </canvas> -->
+        </th>
+        <th>
+          <img id='image06' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg'  height=128 width=128/>
+        </th>
+      </tr>
+    </table>
+  </div>
+  <!-- the main.js module of our 3d application for this page (in the /static/ directory mandatory!!!) -->
+
+  <script type="module" crossOrigin = "Anonymous" >
+
+  import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+
+function main() {
+  const canvas = document.querySelector('#myCanvas');
+  const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
+  renderer.physicallyCorrectLights = true;
+
+  //create camera
+  const fov = 45;
+  const aspect = 2;  // the canvas default
+  const near = 0.1;
+  const far = 200;
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.z = 30;
+
+  //create the scene
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('white');
+
+  // put the camera on a pole (parent it to an object)
+  // so we can spin the pole to move the camera around the scene
+  const cameraPole = new THREE.Object3D();
+  scene.add(cameraPole);
+  cameraPole.add(camera);
+
+  {//create directional light
+    const color = 0xFFFFFF;
+    const intensity = 3;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    camera.add(light);
+  }
+
+  const boxWidth = 2;
+  const boxHeight = 2;
+  const boxDepth = 2;
+  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+  function rand(min, max) {
+    if (max === undefined) {
+      max = min;
+      min = 0;
+    }
+    return min + (max - min) * Math.random();
+  }
+
+  function randomColor() {
+    return `hsl(${rand(360) | 0}, ${rand(50, 100) | 0}%, 50%)`;
+  }
+
+  const numObjects = 27; //number of cubes
+
+  const cubes = [ ];
+
+  for (let i = 0; i < numObjects; ++i) {
+    const material = new THREE.MeshPhongMaterial({ //create a material with a color
+      color: randomColor(),
+    });
+
+    const cube = new THREE.Mesh(geometry, material); //create a cube from this material
+    scene.add(cube); //add cube to the scene
+    cubes.push(cube); //add cube to the cubes[] array
+
+    //cube.position.set(rand(-20, 20), rand(-20, 20), rand(-20, 20));
+    cube.position.set(4*(i % 3 - 1.5), 4*(Math.floor(i / 3) % 3 -0.5 ), 4*(Math.floor(i / 9) %3-1.5));
+
+    cube.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+
+    //cube.scale.set(rand(3, 6), rand(3, 6), rand(3, 6));
+    cube.scale.set(1.2, 1.2, 1.2);
+  }
+
+  function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const width = window.innerWidth; //canvas.clientWidth;
+    const height = window.innerWidth * 0.5; //canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
+
+  class PickHelper {
+    constructor() {
+      this.raycaster = new THREE.Raycaster();
+      this.pickedObject = null;
+      this.pickedObjectSavedColor = 0;
+    }
+    pick(normalizedPosition, scene, camera, time) {
+      // restore the color if there is a picked object
+      if (this.pickedObject) {
+        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+        this.pickedObject = undefined;
+      }
+
+      // cast a ray through the frustum
+      this.raycaster.setFromCamera(normalizedPosition, camera);
+      // get the list of objects the ray intersected
+      const intersectedObjects = this.raycaster.intersectObjects(scene.children);
+      if (intersectedObjects.length) {
+        // pick the first object. It's the closest one
+        this.pickedObject = intersectedObjects[0].object;
+        // save its color
+        this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+        // set its emissive color to flashing red/yellow
+        this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+      }
+    }
+  }
+
+  const pickPosition = {x: 0, y: 0};
+  const pickHelper = new PickHelper();
+  clearPickPosition();
+
+
+  function render(time) {
+    time *= 0.001;  // convert to seconds;
+
+    if (resizeRendererToDisplaySize(renderer)) {
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    }
+
+    cubes.forEach((cube, ndx) => { //rotate each cube from cubes
+      const speed = 0.4 + ndx * .01;
+      const rot = time * speed;
+      cube.rotation.x = rot;
+      cube.rotation.y = rot;
+    });
+
+    cameraPole.rotation.y = time * .1;
+
+    pickHelper.pick(pickPosition, scene, camera, time);
+
+    renderer.render(scene, camera);
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  function getCanvasRelativePosition(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - rect.left) * canvas.width  / rect.width,
+      y: (event.clientY - rect.top ) * canvas.height / rect.height,
+    };
+  }
+
+  function setPickPosition(event) {
+    const pos = getCanvasRelativePosition(event);
+    pickPosition.x = (pos.x / canvas.width ) *  2 - 1;
+    pickPosition.y = (pos.y / canvas.height) * -2 + 1;  // note we flip Y
+  }
+
+  function clearPickPosition() {
+    // unlike the mouse which always has a position
+    // if the user stops touching the screen we want
+    // to stop picking. For now we just pick a value
+    // unlikely to pick something
+    pickPosition.x = -100000;
+    pickPosition.y = -100000;
+  }
+  window.addEventListener('mousemove', setPickPosition);
+  window.addEventListener('mouseout', clearPickPosition);
+  window.addEventListener('mouseleave', clearPickPosition);
+
+  window.addEventListener('touchstart', (event) => {
+    // prevent the window from scrolling
+    event.preventDefault();
+    setPickPosition(event.touches[0]);
+  }, {passive: false});
+
+  window.addEventListener('touchmove', (event) => {
+    setPickPosition(event.touches[0]);
+  });
+
+  window.addEventListener('touchend', clearPickPosition);
+}
+
+main();
+
+
+  </script>
+
+</head>
+
+<body>
+  <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-picking.html"> https://threejsfundamentals.org/threejs/lessons/threejs-picking.html </a>  </h1>
+
+  <!-- Adding a three.js Scene container to this page -->
+  <!--  <div id="scene-container"> -->
+  <!-- When created, renderer inserts a canvas element inside the scene container -->
+  <canvas id="myCanvas" />  </canvas>
+
+  </div>
+
+</body>
+
+
+</html>
