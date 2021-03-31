@@ -39,6 +39,7 @@
   <script type="module" crossOrigin = "Anonymous" >
 
   import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+  import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 
   function main() {
     const canvas = document.querySelector('#myCanvas');
@@ -53,9 +54,11 @@
     const far = 10;    // the camera far distance (frustrum end)
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set(0, 0, 5);
+
     //scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('skyblue'); //scene color
+
     //light
     {
       const color = 0xFFFFFF; //white color
