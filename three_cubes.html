@@ -51,32 +51,48 @@
     const fov = 35;    // camera field of view in degrees
     const aspect = 2;  // the canvas default aspect ratio
     const near = 0.5;  // the camera near distance (frustrum start)
-    const far = 10;    // the camera far distance (frustrum end)
+    const far = 100;    // the camera far distance (frustrum end)
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set(0, 0, 5);
+
+    // orbit controls  - rotate and zoom in/out
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, -0.5, 0); //move the scene up (to -0.5 on Y coord)
+    controls.update();
 
     //scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('skyblue'); //scene color
 
-    //light
+    //hemisphere light to have light from everywhere
+    {
+
+      const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
+      const groundColor = 0xB97A20;  // brownish orange
+      const intensity = 3;
+      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+      scene.add(light); //add this light to the scene
+    }
+
+    //directional light to have light from the given direction
     {
       const color = 0xFFFFFF; //white color
-      const intensity = 4;    //light intensity
+      const intensity = 3;    //light intensity
       const light = new THREE.DirectionalLight(color, intensity);
       light.position.set(0, 0, 5);
       scene.add(light); //add light to scene
     }
 
+    //build a geometry
     const boxWidth = 1;
     const boxHeight = 1;
     const boxDepth = 1;
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-    function makeCube(geometry, color, x) {
-      const material = new THREE.MeshPhongMaterial({color});
+    function makeCube(geometry, color, x) {// make a cube using the geometry and color
+      const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
 
-      const cube = new THREE.Mesh(geometry, material);
+      const cube = new THREE.Mesh(geometry, material); //make a mesh (here - a cube) from the given material and geometry
       scene.add(cube);
 
       cube.position.x = x;
@@ -90,9 +106,25 @@
       makeCube(geometry, 0xaa8844,  2),
     ];
 
+    function resizeRendererToDisplaySize(renderer) {
+      const canvas = renderer.domElement;
+      const width = window.innerWidth; //canvas.clientWidth;
+      const height = window.innerWidth * 0.5; //canvas.clientHeight;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, true);
+      }
+      return needResize;
+    }
+
     function render(time) { //render function rotates cubes and renderer displays them on screen
       time *= 0.001;  // convert time to seconds
 
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
       cubes.forEach((cube, ndx) => {
         const speed = 0.4 + ndx * .01;
         const rot = time * speed;
