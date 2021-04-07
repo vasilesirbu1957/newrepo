@@ -71,10 +71,19 @@ function main() {
 
   {//create directional light
     const color = 0xFFFFFF;
-    const intensity = 3;
+    const intensity = 2;
     const light = new THREE.DirectionalLight(color, intensity);
     light.position.set(-1, 2, 4);
-    camera.add(light);
+    camera.add(light); // add light to camera, so when camera moves, the light moves with it
+  }
+
+  //hemisphere light to have light from everywhere
+  {
+    const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light); //add this light to the scene
   }
 
   const boxWidth = 2;
@@ -238,9 +247,7 @@ main();
   <!-- Adding a three.js Scene container to this page -->
   <!--  <div id="scene-container"> -->
   <!-- When created, renderer inserts a canvas element inside the scene container -->
-  <canvas id="myCanvas" />  </canvas>
-
-  </div>
+  <canvas id="myCanvas">  </canvas>
 
 </body>
 
