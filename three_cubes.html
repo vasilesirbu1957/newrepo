@@ -63,10 +63,11 @@
     //scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('skyblue'); //scene color
+    scene.add(camera);
+
 
     //hemisphere light to have light from everywhere
     {
-
       const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
       const groundColor = 0xB97A20;  // brownish orange
       const intensity = 3;
@@ -80,7 +81,8 @@
       const intensity = 3;    //light intensity
       const light = new THREE.DirectionalLight(color, intensity);
       light.position.set(0, 0, 5);
-      scene.add(light); //add light to scene
+      //scene.add(light); //add light to scene - when camera moves, the light remains at its position
+      camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
     }
 
     //build a geometry
@@ -146,14 +148,10 @@
 </head>
 
 <body>
+
   <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
 
-  <!-- Adding a three.js Scene container to this page -->
-  <!--  <div id="scene-container"> -->
-  <!-- When created, renderer inserts a canvas element inside the scene container -->
-  <canvas id="myCanvas" />  </canvas>
-
-  </div>
+  <canvas id="myCanvas">  </canvas>
 
 </body>
 
