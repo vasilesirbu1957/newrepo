@@ -35,7 +35,7 @@
           <video id='video1' crossOrigin = "Anonymous" autoplay muted loop src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/video1.mov' type="video/mp4" width="128" height="128">
         </th>
         <th>
-          <video id='video2' crossOrigin = "Anonymous" autoplay muted loop src='./video1.mov' type="video/mp4"  width="128" height="128">
+          <video id='video2' crossOrigin = "Anonymous" autoplay muted loop src='./Maiusa.mov' type="video/mp4"  width="128" height="128">
         </th>
       </tr>
     </table>
@@ -91,6 +91,12 @@
       camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
     }
 
+    const video1 = document.getElementById( 'video1' );
+    const texture1 = new THREE.VideoTexture( video1 );
+    //texture1.minFilter = THREE.LinearFilter;
+    //texture1.magFilter = THREE.LinearFilter;
+    //texture1.format = THREE.RGBFormat;
+
     //build a geometry
     const boxWidth = 1;
     const boxHeight = 1;
@@ -98,8 +104,8 @@
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
     function makeCube(geometry, color, x) {// make a cube using the geometry and color
-      const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
-
+      //const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
+  const material = new THREE.MeshPhongMaterial({map: texture1, overdraw: true }); //make a material of the given texture
       const cube = new THREE.Mesh(geometry, material); //make a mesh (here - a cube) from the given material and geometry
       scene.add(cube);
 
