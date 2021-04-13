@@ -61,7 +61,7 @@ function main() {
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.1;
-  const far = 100;
+  const far = 500;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(0, 10, 20);
 
@@ -71,7 +71,7 @@ function main() {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('skyblue'); //scene color
-
+/*
   {
     const planeSize = 40;
 
@@ -92,7 +92,7 @@ function main() {
     mesh.rotation.x = Math.PI * -.5;
     scene.add(mesh);
   }
-
+*/
   {
     const skyColor = 0xB1E1FF;  // light blue
     const groundColor = 0xB97A20;  // brownish orange
@@ -191,6 +191,7 @@ function main() {
   }
 
   const cars = [];
+  /*
   {
     const gltfLoader = new GLTFLoader();
     gltfLoader.load('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf', (gltf) => {
@@ -231,7 +232,7 @@ function main() {
       controls.update();
     });
   }
-
+*/
   {
     const gltfLoader = new GLTFLoader();
     const url = 'https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Flamingo.glb';
