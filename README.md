@@ -8,4 +8,6 @@ select_cube.html - user can select any cube from 27 rotating cubes from https://
 
 three_cubes.html - shows three rotating cubes from https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
 
-canvas_texture_Greetings.html - shows three rotating cubes with different canvas textures
+canvas_texture_Greetings.html - shows three rotating cubes with different canvas textures inside an outer cube with 6 images-textures
+
+outer_cubic_greetings.html - shows three rotating tori (one torus, three tori) with reflective surfaces inside an outer cube with 6 images-textures
