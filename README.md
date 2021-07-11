@@ -1,7 +1,7 @@
 here are some modified threejs examples from https://threejsfundamentals.org/threejs/lessons/
 each example in this directory is a html file. To run each example just type in your browser
-https://raw.githack.com/vasilesirbu1957/newrepo/main/[file name].html
-where [file name] is the name of the chosen html file and press Enter. 
+https://raw.githack.com/vasilesirbu1957/newrepo/main/[file_name].html
+where [file_name] is the name of the chosen html file and press Enter. 
 For example, to run flamingo_model.html file, type https://raw.githack.com/vasilesirbu1957/newrepo/main/flamingo_model.html
 and press Enter.
 Each model can be rotated and zoomed in/out.
