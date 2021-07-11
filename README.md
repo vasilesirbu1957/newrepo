@@ -10,8 +10,6 @@ Example list:
 
 city.html - loads a 3D gltf city model from https://threejsfundamentals.org/threejs/lessons/threejs-load-gltf.html
 
-select_cube.html - user can select any cube from 27 rotating cubes
-from https://threejsfundamentals.org/threejs/lessons/threejs-picking.html
+select_cube.html - user can select any cube from 27 rotating cubes from https://threejsfundamentals.org/threejs/lessons/threejs-picking.html
 
-three_cubes.html - shows three rotating cubes
-from https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
+three_cubes.html - shows three rotating cubes from https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
