@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="UTF-8" />
     <title> La multi ani! </title>
 
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
-
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- style for body and for audio element -->
     <style>
   	  body { margin: 0; }
+      audio {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
     </style>
+
   </head>
   <body>
   <!-- the styles for this page in the local file main.css (in the /static/ directory mandatory!!!)-->
   <!-- <link href="/static/css/main.css" rel="stylesheet" type="text/css"> -->
-<!--
+  <!--
   <div>
     <table style="width:100%">
       <tr>
@@ -270,5 +277,11 @@ const texture3 = createCanvasTexture3();
 
 </body>
 
+<audio controls loop style="width:80%;">
+  <!--source src='https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a' type="audio/mpeg"-->
+  <source src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/TheWarOnDrugs.m4a' type='audio/mpeg' >
+  <!--source src='https://raw.githubusercontent.com/d-subat/spaceshipmaze/master/public/assets/machine.mp3' type='audio/mpeg' -->
+  Your browser does not support the audio tag.
+</audio>
 
 </html>
