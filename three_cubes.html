@@ -41,7 +41,10 @@
   import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
   import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 
+var stream = "https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a";
+
   function main() {
+
     const canvas = document.querySelector('#myCanvas');
     const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
     renderer.physicallyCorrectLights = true;
@@ -65,6 +68,15 @@
     scene.background = new THREE.Color('skyblue'); //scene color
     scene.add(camera);
 
+    // AUDIO
+    var audioLoader = new THREE.AudioLoader();
+    var listener = new THREE.AudioListener();
+    var audio = new THREE.Audio(listener);
+    audioLoader.load(stream, function(buffer) {
+        audio.setBuffer(buffer);
+        audio.setLoop(true);
+        audio.play();
+    });
 
     //hemisphere light to have light from everywhere
     {
