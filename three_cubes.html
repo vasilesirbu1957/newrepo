@@ -110,16 +110,6 @@ var stream = "https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/5758
       makeCube(geometry, 0xaa8844,  2),
     ];
 
-    // AUDIO
-    var audioLoader = new THREE.AudioLoader();
-    var listener = new THREE.AudioListener();
-    var audio = new THREE.Audio(listener);
-    audioLoader.load(stream, function(buffer) {
-        audio.setBuffer(buffer);
-        audio.setLoop(true);
-        audio.play();
-    });
-
     function resizeRendererToDisplaySize(renderer) {
       const canvas = renderer.domElement;
       const width = window.innerWidth; //canvas.clientWidth;
@@ -130,7 +120,7 @@ var stream = "https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/5758
       }
       return needResize;
     }
-
+const mu=true;
     function render(time) { //render function rotates cubes and renderer displays them on screen
       time *= 0.001;  // convert time to seconds
 
@@ -150,6 +140,16 @@ var stream = "https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/5758
     }
 
     requestAnimationFrame(render); //requests the first frame using the render function
+
+    // AUDIO
+    //var audioLoader = new THREE.AudioLoader();
+    //var listener = new THREE.AudioListener();
+    //var audio = new THREE.Audio(listener);
+    //audioLoader.load(stream, function(buffer) {
+    //  audio.setBuffer(buffer);
+    //  audio.setLoop(true);
+    //  audio.play();
+    //});
   }
 
   main();
@@ -159,6 +159,10 @@ var stream = "https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/5758
 </head>
 
 <body>
+  <audio controls>
+    <source src="https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a" type="audio/mpeg">
+    Your browser does not support the audio tag.
+  </audio>
 
   <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
 
