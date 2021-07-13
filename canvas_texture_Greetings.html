@@ -261,27 +261,23 @@ const texture3 = createCanvasTexture3();
       renderer.render(scene, camera); //renderer renders the given scene using given camera
       requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
     }
-
     requestAnimationFrame(render); //requests the first frame using the render function
-
   }
-
   main();
 
   </script>
-
 <!--
   <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
 -->
   <canvas id="myCanvas">  </canvas>
 
-</body>
+  <audio controls loop style="width:50%;">
+    <!--source src='https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a' type="audio/mpeg"-->
+    <source src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/TheWarOnDrugs.m4a' type='audio/mpeg' >
+    <!--source src='https://raw.githubusercontent.com/d-subat/spaceshipmaze/master/public/assets/machine.mp3' type='audio/mpeg' -->
+    Your browser does not support the audio tag.
+  </audio>
 
-<audio controls loop style="width:50%;">
-  <!--source src='https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a' type="audio/mpeg"-->
-  <source src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/TheWarOnDrugs.m4a' type='audio/mpeg' >
-  <!--source src='https://raw.githubusercontent.com/d-subat/spaceshipmaze/master/public/assets/machine.mp3' type='audio/mpeg' -->
-  Your browser does not support the audio tag.
-</audio>
+</body>
 
 </html>
