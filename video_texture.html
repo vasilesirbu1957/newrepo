@@ -44,8 +44,8 @@
   </div>
   -->
   <!-- the main.js module of our 3d application for this page (in the /static/ directory mandatory!!!) -->
-  <video width="320" height="240" controls>
-  <source src="Maiusa.mp4" type="video/mp4">
+  <video id="video1" crossOrigin = "Anonymous" width="320" height="240" controls>
+  <source src="https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maiusa.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
@@ -115,17 +115,19 @@
       camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
     }
 
-    const video1 = document.createElement('video'); //create a canvas
-    video1.width="128";
-    video1.height="128";
-    video1.crossOrigin = "Anonymous";
-    video1.autoplay=true;
-    video1.muted=true;
-    video1.loop=true;
-    video1.type="video/mp4";
-    video1.src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/video1.mov';
+const video1 = document.getElementById('video1');
+
+    //const video1 = document.createElement('video'); //create a canvas
+    //video1.width="128";
+    //video1.height="128";
+    //video1.crossOrigin = "Anonymous";
+    //video1.autoplay=true;
+    //video1.muted=true;
+    //video1.loop=true;
+    //video1.type="video/mp4";
+    //video1.src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/video1.mov';
   //  video1.src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maiusa.mp4' ;
-    video1.play()
+    //video1.play()
     const texture1 = new THREE.VideoTexture( video1 );
     const material = new THREE.MeshStandardMaterial({map: texture1});
 
