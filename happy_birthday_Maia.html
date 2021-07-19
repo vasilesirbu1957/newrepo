@@ -128,17 +128,30 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
     let loader = new THREE.TextureLoader();
     let materialArray = [
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia0.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia1.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia2.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia3.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia4.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia5.jpg') } ),
 
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg') } ),
-        new THREE.MeshBasicMaterial( { map: loader.load('https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia6.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia7.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia8.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia9.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia10.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia11.jpg') } ),
+
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia12.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia13.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia14.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia15.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia16.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia17.jpg') } ),
+
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia18.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia19.jpg') } ),
+        new THREE.MeshBasicMaterial( { map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia20.jpg') } ),
     ];
 
     function makeCube(geometry, color, x) {// make a cube using the geometry and color
@@ -169,10 +182,6 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
       return needResize;
     }
 
-
-
-
-
     let camera_pos = new THREE.Vector3;
     let cube_pos =  new THREE.Vector3;
     let direction = new THREE.Vector3;
@@ -193,7 +202,7 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
       ind=(ind-ind%2)/2; //convert ind from 0-11 to 0-5
 
       if (ind != ind_c[cube_index]) {
-        ndx_shift=(ndx_shift+1)%9;
+        ndx_shift=(ndx_shift+1)%21;
         switch (ind) {
           case 0:
           case 2:
@@ -222,7 +231,7 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
       time_shift=(time_shift+1) %20;
       if (time_shift == 0) changeFace((cube_index++)%3);
 
-      time *= 0.001;  // convert time to seconds
+      time *= 0.0005;  // convert time to seconds
 
       if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
@@ -230,7 +239,7 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
         camera.updateProjectionMatrix();
       }
       cubes.forEach((cube, ndx) => {
-        const speed = 0.4 + ndx * .01;
+        const speed = 0.4 + ndx * .001;
         const rot = time * speed;
         cube.rotation.x = rot;
         cube.rotation.y = rot;
