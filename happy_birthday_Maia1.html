@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title> Happy Birthday Maia! (3 years)</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+
+  <!-- the styles for this page in the local file main.css (in the /static/ directory mandatory!!!)-->
+  <!-- <link href="/static/css/main.css" rel="stylesheet" type="text/css"> -->
+<!--
+  <div>
+    <table style="width:100%">
+      <tr>
+        <th>
+          <img id='image01' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image02' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image03' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image04' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image05' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image06' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg'  height=128 width=128/>
+        </th>
+      </tr>
+    </table>
+  </div>
+-->
+  <!-- the main.js module of our 3d application for this page (in the /static/ directory mandatory!!!) -->
+
+  <audio controls loop > <!-- happy birthday to you -->
+    <source src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Happy-Birthday-To-You.mp3' type='audio/mpeg'>
+    Your browser does not support the audio tag.
+  </audio>
+
+  <script type="module" crossOrigin = "Anonymous" >
+
+  import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+  import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
+
+  function main() {
+    const canvas = document.querySelector('#myCanvas');
+    const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
+    renderer.physicallyCorrectLights = true;
+    renderer.setSize(window.innerWidth, window.innerWidth * 0.5); //square size width=100%, height=50% of width
+
+    //camera
+    const fov = 40;//35;    // camera field of view in degrees
+    const aspect = 2;  // the canvas default aspect ratio
+    const near = 0.5;  // the camera near distance (frustrum start)
+    const far = 100;//100;    // the camera far distance (frustrum end)
+    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera.position.set(0, 0, 5);
+
+    // orbit controls  - rotate and zoom in/out
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, -0.5, 0); //move the scene up (to -0.5 on Y coord)
+    controls.update();
+
+    //scene
+    const scene = new THREE.Scene();
+    scene.add(camera);
+
+    {//cube texture for the scene background
+      const loader = new THREE.CubeTextureLoader();
+      const cubeTexture = loader.load([
+        'https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg',
+      /*
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-x.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-x.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-y.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-y.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-z.jpg',
+        'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-z.jpg',
+      */
+      ]);
+      scene.background = cubeTexture; //set background texture (cube texture)
+    }
+    //scene.background = new THREE.Color('skyblue'); //scene background color
+
+
+    // put the camera on a pole (parent it to an object)
+    // so we can spin the pole to move the camera around the scene
+    const cameraPole = new THREE.Object3D();
+    scene.add(cameraPole);
+    cameraPole.add(camera);
+
+    //hemisphere light to have light from everywhere
+    {
+      const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
+      const groundColor = 0xB97A20;  // brownish orange
+      const intensity = 3;
+      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+      scene.add(light); //add this light to the scene
+    }
+
+    //directional light to have light from the given direction
+    {
+      const color = 0xFFFFFF; //white color
+      const intensity = 3;    //light intensity
+      const light = new THREE.DirectionalLight(color, intensity);
+      light.position.set(0, 0, 5);
+      //scene.add(light); //add light to scene - when camera moves, the light remains at its position
+      camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
+    }
+
+    //build a geometry
+    const boxWidth = 1;
+    const boxHeight = 1;
+    const boxDepth = 1;
+    const geometry0 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+const geometry1 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+    let loader = new THREE.TextureLoader();
+    let materialArray = [
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia0.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia1.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia2.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia3.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia4.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia5.jpg') } ),
+
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia6.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia7.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia8.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia9.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia10.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia11.jpg') } ),
+
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia12.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia13.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia14.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia15.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia16.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia17.jpg') } ),
+
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia18.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia19.jpg') } ),
+        new THREE.MeshBasicMaterial( {opacity: 1.0, transparent: true, map: loader.load('https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Maia20.jpg') } ),
+    ];
+
+    function makeCube(geometry, color, x, material_index) {// make a cube using the geometry and color
+      //const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
+
+      const cube = new THREE.Mesh(geometry, materialArray[material_index]); //make a mesh (here - a cube) from the given materials and geometry
+
+      cube.position.x = x;
+      cube.scale.set(1.4,1.4,1.4);
+      scene.add(cube);
+      //camera.add(cube);
+
+      return cube;
+    }
+
+    const cubes = [ //create 3 cubes and add them to the scene
+      makeCube(geometry0, 0x44aa88,  0, 18),
+      makeCube(geometry1, 0x8844aa, -2, 19),
+      makeCube(geometry2, 0xaa8844,  2, 20),
+    ];
+
+    function resizeRendererToDisplaySize(renderer) {
+      const canvas = renderer.domElement;
+      const width = window.innerWidth; //canvas.clientWidth;
+      const height = window.innerWidth * 0.5; //canvas.clientHeight;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, true);
+      }
+      return needResize;
+    }
+
+    let camera_pos = new THREE.Vector3;
+    let cube_pos =  new THREE.Vector3;
+    let direction = new THREE.Vector3;
+    let raycaster = new THREE.Raycaster(); //is used to find the point of intersection of a ray with some objects
+    let ind_c=[-1,-1,-1];
+    let ndx_shift = 0;  // index shifting for material
+
+    function changeFace(cube_index) {
+
+      camera.getWorldPosition(camera_pos);  //get camera current position
+      cubes[cube_index].getWorldPosition(cube_pos);  //get cubes[1] current position
+      direction = cube_pos.sub(camera_pos); //get the vector cube_pos - camera_pos (the ray)
+      direction.normalize();                //normalize the ray
+      raycaster.set( camera_pos, direction);//set the ray
+
+      var intersects = raycaster.intersectObjects( [cubes[cube_index]], false); //get the intersections
+      var ind = intersects[0].faceIndex; //we need to know the first intersected cube face (faceIndex is from 0 to 11)
+      ind=(ind-ind%2)/2; //convert ind from 0-11 to 0-5
+
+      if (ind != ind_c[cube_index]) {
+        ndx_shift=(ndx_shift+1)%21;
+        switch (ind) {
+          case 0:
+          case 2:
+          case 4:
+            //cubes[cube_index].geometry.groups[ind+1].materialIndex = ndx_shift; //change the materialIndex for the same face
+            cubes[cube_index].geometry.groups[ind+1].materialIndex = ndx_shift; //change the materialIndex for the opposite face
+            break;
+          case 1:
+          case 3:
+          case 5:
+            //cubes[cube_index].geometry.groups[ind-1].materialIndex = ndx_shift; //change the materialIndex for the same face
+            cubes[cube_index].geometry.groups[ind-1].materialIndex = ndx_shift; //change the materialIndex for the opposite face
+            break;
+          default:
+            console.log(`Sorry, we are out of range`);
+        }
+        ind_c[cube_index]=ind;
+      }
+    }
+
+    let time_shift = 0; // time units from 0 to 19
+    let cube_index = 0;
+
+    const v = new THREE.Vector3( 0.1, 0.1, 0.1 );
+
+    function render(time) { //render function rotates cubes and renderer displays them on screen
+//console.log(time_shift);
+      if (time_shift < 300) {
+        let m = Math.abs(time_shift-150)/150;
+        cubes[cube_index].material.opacity=m;
+    //console.log(time_shift);
+        if (time_shift==150) {
+          ndx_shift=(ndx_shift+1)%21;
+          materialArray[ndx_shift].opacity=0;
+          cubes[cube_index].material=materialArray[ndx_shift];
+    //console.log(cubes[1])
+        }
+      }
+      time_shift=(time_shift+1)%500;
+      if (time_shift==0) cube_index=(cube_index+1)%3;
+
+      //time_shift=(time_shift+1) %30;
+  //    if (time_shift == 0) changeFace((cube_index++)%3);
+
+      time *= 0.0005;  // convert time to seconds
+
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+      cubes.forEach((cube, ndx) => {
+        const speed = 0.4 + ndx * .001;
+        const rot = time * speed;
+        cube.rotation.x = rot;
+        cube.rotation.y = rot;
+      });
+
+      //cameraPole.rotation.y = time * 0.05; //rotate camera
+
+      renderer.render(scene, camera); //renderer renders the given scene using given camera
+      requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
+    }
+
+    requestAnimationFrame(render); //requests the first frame using the render function
+  }
+
+  main();
+
+  </script>
+
+</head>
+
+<body>
+<!--
+  <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
+-->
+  <canvas id="myCanvas">  </canvas>
+
+</body>
+
+
+</html>
