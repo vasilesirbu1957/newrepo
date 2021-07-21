@@ -160,17 +160,18 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
       const cube = new THREE.Mesh(geometry, materialArray[material_index]); //make a mesh (here - a cube) from the given materials and geometry
 
       cube.position.x = x;
+  cube.position.z = -5;
       cube.scale.set(1.4,1.4,1.4);
-      scene.add(cube);
-      //camera.add(cube);
-
+  cube.rotation.z = 0.3;
+    //  scene.add(cube);
+  camera.add(cube);
       return cube;
     }
 
     const cubes = [ //create 3 cubes and add them to the scene
       makeCube(geometry0, 0x44aa88,  0, 18),
-      makeCube(geometry1, 0x8844aa, -2, 19),
-      makeCube(geometry2, 0xaa8844,  2, 20),
+      makeCube(geometry1, 0x8844aa, -2.1, 19),
+      makeCube(geometry2, 0xaa8844,  2.1, 20),
     ];
 
     function resizeRendererToDisplaySize(renderer) {
@@ -259,11 +260,11 @@ const geometry2 = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
       cubes.forEach((cube, ndx) => {
         const speed = 0.4 + ndx * .001;
         const rot = time * speed;
-        cube.rotation.x = rot;
+        //cube.rotation.x = rot;
         cube.rotation.y = rot;
       });
 
-      //cameraPole.rotation.y = time * 0.05; //rotate camera
+      cameraPole.rotation.y = time * 0.05; //rotate camera
 
       renderer.render(scene, camera); //renderer renders the given scene using given camera
       requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
