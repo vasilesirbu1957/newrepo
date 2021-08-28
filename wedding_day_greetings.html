@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title> threejsfundamentals.org - Three.js Loading a .GLTF File </title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+
+  <!-- the styles for this page in the local file main.css (in the /static/ directory mandatory!!!)-->
+  <!-- <link href="/static/css/main.css" rel="stylesheet" type="text/css"> -->
+  <!--
+  <div>
+    <table style="width:100%">
+      <tr>
+        <th>
+          <img id='image01' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image02' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image03' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image04' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image05' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image06' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg'  height=128 width=128/>
+        </th>
+      </tr>
+    </table>
+  </div>
+  -->
+  <audio controls loop >
+    <source src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/fm-freemusic-two-loving-hearts.mp3' type='audio/mpeg' >
+    Your browser does not support the audio tag.
+  </audio>
+
+  <script type="module" crossOrigin = "Anonymous" >
+
+  import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+  import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
+
+  function main() {
+    const canvas = document.querySelector('#myCanvas');
+    const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
+    renderer.physicallyCorrectLights = true;
+    renderer.setSize(window.innerWidth, window.innerWidth * 0.5); //square size width=100%, height=50% of width
+
+    //camera
+    const fov = 40;//35;    // camera field of view in degrees
+    const aspect = 2;  // the canvas default aspect ratio
+    const near = 0.5;  // the camera near distance (frustrum start)
+    const far = 100;    // the camera far distance (frustrum end)
+    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera.position.set(0, 0, 5);
+
+    // orbit controls  - rotate and zoom in/out
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, -0.5, 0); //move the scene up (to -0.5 on Y coord)
+    controls.update();
+
+    //scene
+    const scene = new THREE.Scene();
+    scene.add(camera);
+
+    //cube texture for the scene background
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      'https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg',
+    /*
+      'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-x.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-x.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-y.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-y.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/pos-z.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/cubemaps/computer-history-museum/neg-z.jpg',
+    */
+    ]);
+    scene.background = texture; //set background texture (cube texture)
+    //scene.background = new THREE.Color('skyblue'); //scene background color
+
+    // put the camera on a pole (parent it to an object)
+    // so we can spin the pole to move the camera around the scene
+    const cameraPole = new THREE.Object3D();
+    scene.add(cameraPole);
+    cameraPole.add(camera);
+
+    //hemisphere light to have light from everywhere
+    {
+      const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
+      const groundColor = 0xB97A20;  // brownish orange
+      const intensity = 3;
+      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+      scene.add(light); //add this light to the scene
+    }
+
+    //directional light to have light from the given direction
+    {
+      const color = 0xFFFFFF; //white color
+      const intensity = 3;    //light intensity
+      const light = new THREE.DirectionalLight(color, intensity);
+      light.position.set(0, 0, 5);
+      //scene.add(light); //add light to scene - when camera moves, the light remains at its position
+      camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
+    }
+
+    const objects = []; //empty objects array
+    const spread = 35;
+
+    function addObject(x, y, obj) {//sets obj x,y position and adds obj to scene and to objects array
+      //obj.position.x = x * spread;
+      //obj.position.y = y * spread;
+      obj.position.x = -7;
+      obj.position.y = -5;
+      obj.position.z = -15;
+      camera.add(obj); //objects added to camera do not change with orbit controls
+      objects.push(obj);
+    }
+
+    function createMaterial() {//create material
+      const material = new THREE.MeshStandardMaterial({
+        color: 'gold',//0xdd8822,
+        envMap: texture,
+        envMapIntensity: 1.0,
+        roughness: 0.0,
+        metalness: 1.0,
+        //shininess: 0,
+      //  side: THREE.DoubleSide,
+      });
+/*
+      const hue = 0.5;  //Math.random();
+      const saturation = 1;
+      const luminance = 0.2;
+      material.color.setHSL(hue, saturation, luminance);
+*/
+      return material;
+    }
+
+    function addSolidGeometry(x, y, geometry) {//creates a 3D obj from a given geometry+material+coord and adds it to scene and objects array
+      const mesh = new THREE.Mesh(geometry, createMaterial());
+      addObject(x, y, mesh);
+    }
+
+    {
+      const loader = new THREE.FontLoader();
+      // promisify font loading
+      function loadFont(url) {
+        return new Promise((resolve, reject) => {
+          loader.load(url, resolve, undefined, reject);
+        });
+      }
+
+      async function doit() {
+        const font = await loadFont('https://threejsfundamentals.org/threejs/resources/threejs/fonts/helvetiker_regular.typeface.json');
+        const geometry = new THREE.TextGeometry('La multi ani!', {
+          font: font,
+          size: 2,//3,
+          height: 0.5,
+          curveSegments: 16,//12,
+
+          bevelEnabled: false,
+          bevelThickness: 0.05,
+          bevelSize: 0.0125,
+          bevelOffset: 0.05,
+          bevelSegments: 1,
+        });
+
+        addSolidGeometry(0, 0, geometry);
+
+        const mesh = new THREE.Mesh(geometry, createMaterial());
+        geometry.computeBoundingBox();
+        geometry.boundingBox.getCenter(mesh.position).multiplyScalar(-1);
+
+      //  const parent = new THREE.Object3D();
+      //  parent.add(mesh);
+
+      //  addObject(.5, 0, parent);
+      }
+
+      doit();
+    }
+
+    //build a toruse geometry
+    const torusRadius = 0.8;
+    const tubeRadius = 0.2;
+    const radialSegments=16;
+    const tubularSegments=64;
+    const geometry = new THREE.TorusGeometry( torusRadius, tubeRadius, radialSegments, tubularSegments );
+
+    function makeTorus(geometry, color, x) {// make a sphere using the geometry and color
+      const material = new THREE.MeshPhongMaterial({color, envMap: texture, envMapIntensity: 1, roughness: 0.125, metallness: 0.5 });//make a material of the given color and properties
+      const torus = new THREE.Mesh(geometry, material);//make a mesh (here - a sphere) from the given material and geometry
+      scene.add(torus);
+      torus.position.x = x;
+
+
+      return torus;
+    }
+
+    const toruses = [ //create 3 cubes and add them to the scene
+      makeTorus(geometry, 0xffffff, /*0x44aa88,*/  -1/*0*/),
+      makeTorus(geometry, 0xffff88, /*0x8844aa,*/ 1/*-2*/),
+    //  makeTorus(geometry, 0x88ffff, /*0xaa8844,*/  2),
+    ];
+
+    function resizeRendererToDisplaySize(renderer) {
+      const canvas = renderer.domElement;
+      const width = window.innerWidth; //canvas.clientWidth;
+      const height = window.innerWidth * 0.5; //canvas.clientHeight;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, true);
+      }
+      return needResize;
+    }
+
+    function render(time) { //render function rotates cubes and renderer displays them on screen
+      time *= 0.001;  // convert time to seconds
+
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+      toruses.forEach((torus, ndx) => {
+        const speed = 0.4 + ndx * .01;
+        const rot = time * speed;
+        torus.rotation.x = rot;
+        torus.rotation.y = rot;
+      });
+
+      objects.forEach((obj, ndx) => {
+        //const speed = .4 + ndx * .01;
+        //const rot = time * speed;
+        //obj.rotation.x = rot;
+        //obj.rotation.y = rot;
+        //obj.rotation.y = time * 0.05;
+      });
+
+      cameraPole.rotation.y = time * 0.05; //rotate camera
+
+      renderer.render(scene, camera); //renderer renders the given scene using given camera
+      requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
+    }
+
+    requestAnimationFrame(render); //requests the first frame using the render function
+
+  }
+
+  main();
+
+  </script>
+
+</head>
+
+<body>
+<!--
+  <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
+-->
+  <canvas id="myCanvas">  </canvas>
+
+</body>
+
+
+</html>
