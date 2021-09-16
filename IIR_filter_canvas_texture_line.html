@@ -51,8 +51,8 @@
 
   import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
   import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
-  import {skyboxFlowersScene as scene} from 'https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/js/scenes.js';
-
+  //import {createSkyboxFlowersScene} from 'https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/js/scenes.js';
+import {createSkyboxFlowersScene} from 'https://raw.github.com/vasilesirbu1957/newrepo/main/js/scenes.js';
   function main() {
     const canvas = document.querySelector('#myCanvas');
     const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
@@ -93,6 +93,26 @@
     ]);
     scene.background = texture; //set background texture (cube texture)
 */
+/*
+function createSkyboxFlowersScene() {
+  const skyboxFlowersScene = new THREE.Scene();
+  //scene.background = new THREE.Color('skyblue'); //scene color
+  //cube texture for the scene background
+  const loader = new THREE.CubeTextureLoader();
+  const texture = loader.load([
+    'https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg',
+    'https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg',
+    'https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg',
+    'https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg',
+    'https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg',
+    'https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg',
+  ]);
+  skyboxFlowersScene.background = texture; //set background texture (cube texture)
+  return skyboxFlowersScene;
+}
+*/
+const scene = createSkyboxFlowersScene();
+
     scene.add(camera);
 
     // put the camera on a pole (parent it to an object)
