@@ -52,7 +52,8 @@
   import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
   import {createSkyboxFlowersScene,
           createHemisphereLight,
-          createDirectionalLight} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
+          createDirectionalLight,
+          createPerspectiveCamera} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
 
   function main() {
     const canvas = document.querySelector('#myCanvas');
@@ -60,13 +61,21 @@
     renderer.physicallyCorrectLights = true;
     renderer.setSize(window.innerWidth, window.innerWidth * 0.5); //square size width=100%, height=50% of width
 
+  const scene = createSkyboxFlowersScene(); //create a skybox scene
+/*
     //camera
     const fov = 35;    // camera field of view in degrees
-    const aspect = 2;  // the canvas default aspect ratio
+    const aspect = 2;  // the canvas default aspect ratio = 2
     const near =0.1;  // the camera near distance (frustrum start)
     const far = 60;    // the camera far distance (frustrum end)
-    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set(0, 0, -9);
+*/
+    const camera = createPerspectiveCamera({fov:35, aspect:2, near:0.1, far:60, x:0, y:0, z:-9}, scene);
+
+    // put the camera on a pole (parent it to an object)
+    // so we can spin the pole to move the camera around the scene
+    const cameraPole = new THREE.Object3D();
+    scene.add(cameraPole);
+    cameraPole.add(camera);
 
     // orbit controls  - rotate and zoom in/out
     const controls = new OrbitControls(camera, canvas);
@@ -79,33 +88,12 @@
     //controls.minZoom = 2.0;
     //controls.maxZoom = 40.0;
 
-    const scene = createSkyboxFlowersScene(); //create a skybox scene
-    scene.add(camera);
-
-    // put the camera on a pole (parent it to an object)
-    // so we can spin the pole to move the camera around the scene
-    const cameraPole = new THREE.Object3D();
-    scene.add(cameraPole);
-    cameraPole.add(camera);
-
     //hemisphere light to have light from everywhere
     const Hlight = createHemisphereLight({skyColor:0xFFFFFF, groundColor:0xB97A20, intensity:3}, scene);
 
-
     //directional light to have light from the given direction
     const Dlight = createDirectionalLight({color:0xFFFFFF, intensity:3, x:0, y:0, z:5}, camera);
-/*
-    {
-      const color = 0xFFFFFF; //white color
-      const intensity = 3;    //light intensity
-      const light = new THREE.DirectionalLight(color, intensity);
-      light.position.set(0, 0, 5);
-      //scene.add(light); //add light to scene - when camera moves, the light remains at its position
-      camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
-    }
-*/
-  //  const video1 = document.getElementById( 'video1' );
-  //  const texture1 = new THREE.VideoTexture( video1 );
+
 
 const canvas1_height = 512; //canvas height
 const ym1 = canvas1_height/2;
