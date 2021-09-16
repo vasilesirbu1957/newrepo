@@ -52,7 +52,6 @@
   import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
   import {createSkyboxFlowersScene,
           createHemisphereLight} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
-  //import {createHemisphereLight}    from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/lights.js';
 
   function main() {
     const canvas = document.querySelector('#myCanvas');
@@ -87,26 +86,14 @@
     const cameraPole = new THREE.Object3D();
     scene.add(cameraPole);
     cameraPole.add(camera);
-/*
-function createHemisphereLight({skyColor,groundColor,intensity},scene){
-  const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-  scene.add(light); //add this light to the scene
-  return light;
-}
-*/
-const light = createHemisphereLight({skyColor:0xFFFFFF, groundColor:0xB97A20, intensity:3}, scene);
 
-/*
     //hemisphere light to have light from everywhere
-    {
-      const skyColor = 0xFFFFFF;
-      const groundColor = 0xB97A20;  // brownish orange
-      const intensity = 3;
-      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-      scene.add(light); //add this light to the scene
-    }
-*/
+    const Hlight = createHemisphereLight({skyColor:0xFFFFFF, groundColor:0xB97A20, intensity:3}, scene);
+
+
     //directional light to have light from the given direction
+    const Dlight = createDirectionalLight({color:0xFFFFFF, intensity:3, x:0, y:0, z:5}, camera);
+/*
     {
       const color = 0xFFFFFF; //white color
       const intensity = 3;    //light intensity
@@ -115,7 +102,7 @@ const light = createHemisphereLight({skyColor:0xFFFFFF, groundColor:0xB97A20, in
       //scene.add(light); //add light to scene - when camera moves, the light remains at its position
       camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
     }
-
+*/
   //  const video1 = document.getElementById( 'video1' );
   //  const texture1 = new THREE.VideoTexture( video1 );
 
