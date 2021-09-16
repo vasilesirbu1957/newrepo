@@ -4,7 +4,7 @@ import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threej
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 
 //scene
-export function createSkyboxFlowersScene() {
+function createSkyboxFlowersScene() {
   const skyboxFlowersScene = new THREE.Scene();
   //scene.background = new THREE.Color('skyblue'); //scene color
   //cube texture for the scene background
