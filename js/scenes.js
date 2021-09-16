@@ -19,4 +19,4 @@ function createSkyboxFlowersScene() {
   ]);
   skyboxFlowersScene.background = texture; //set background texture (cube texture)
   return skyboxFlowersScene;
-}
+} 
