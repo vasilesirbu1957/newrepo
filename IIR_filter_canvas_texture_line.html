@@ -51,9 +51,9 @@
 
   import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
   import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
-  //import {createSkyboxFlowersScene} from 'https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/js/scenes.js';
-//import {createSkyboxFlowersScene} from 'https://raw.github.com/vasilesirbu1957/newrepo/main/js/scenes.js';
-import {createSkyboxFlowersScene} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
+  import {createSkyboxFlowersScene} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
+  import {createHemisphereLight} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/lights.js';
+
   function main() {
     const canvas = document.querySelector('#myCanvas');
     const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
@@ -78,42 +78,8 @@ import {createSkyboxFlowersScene} from 'https://raw.githack.com/vasilesirbu1957/
     //limit zoom in and out when using THREE.OrbitControls with ortographic camera:
     //controls.minZoom = 2.0;
     //controls.maxZoom = 40.0;
-/*
-    //scene
-    const scene = new THREE.Scene();
-    //scene.background = new THREE.Color('skyblue'); //scene color
-    //cube texture for the scene background
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      'https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg',
-      'https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg',
-      'https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg',
-      'https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg',
-      'https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg',
-      'https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg',
-    ]);
-    scene.background = texture; //set background texture (cube texture)
-*/
-/*
-function createSkyboxFlowersScene() {
-  const skyboxFlowersScene = new THREE.Scene();
-  //scene.background = new THREE.Color('skyblue'); //scene color
-  //cube texture for the scene background
-  const loader = new THREE.CubeTextureLoader();
-  const texture = loader.load([
-    'https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg',
-    'https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg',
-    'https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg',
-    'https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg',
-    'https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg',
-    'https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg',
-  ]);
-  skyboxFlowersScene.background = texture; //set background texture (cube texture)
-  return skyboxFlowersScene;
-}
-*/
-const scene = createSkyboxFlowersScene();
 
+    const scene = createSkyboxFlowersScene(); //create a skybox scene
     scene.add(camera);
 
     // put the camera on a pole (parent it to an object)
@@ -121,16 +87,25 @@ const scene = createSkyboxFlowersScene();
     const cameraPole = new THREE.Object3D();
     scene.add(cameraPole);
     cameraPole.add(camera);
+/*
+function createHemisphereLight({skyColor,groundColor,intensity},scene){
+  const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+  scene.add(light); //add this light to the scene
+  return light;
+}
+*/
+const light = createHemisphereLight({skyColor:0xFFFFFF, groundColor:0xB97A20, intensity:3}, scene);
 
+/*
     //hemisphere light to have light from everywhere
     {
-      const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
+      const skyColor = 0xFFFFFF;
       const groundColor = 0xB97A20;  // brownish orange
       const intensity = 3;
       const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
       scene.add(light); //add this light to the scene
     }
-
+*/
     //directional light to have light from the given direction
     {
       const color = 0xFFFFFF; //white color
