@@ -1,4 +1,4 @@
-export {createSkyboxFlowersScene, createHemisphereLight};
+export {createSkyboxFlowersScene, createHemisphereLight, createDirectionalLight};
 
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
