@@ -1,4 +1,4 @@
-export {createSkyboxFlowersScene, createHemisphereLight, createDirectionalLight};
+export {createSkyboxFlowersScene, createHemisphereLight, createDirectionalLight, createPerspectiveCamera};
 
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
@@ -34,4 +34,12 @@ function createDirectionalLight({color, intensity, x,y,z}, cam_or_scene){
   light.position.set(x,y,z);
   cam_or_scene.add(light); //add this light to the scene
   return light;
+}
+
+//create camera
+function createPerspectiveCamera({fov,aspect,near,far,x,y,z},scene){
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(x,y,z);
+  scene.add(camera);
+  return camera;
 }
