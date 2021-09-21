@@ -54,7 +54,7 @@ function main() {
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.z = 30;
 
-  // orbit controls  - rotate and zoom in/out
+  //orbit controls  - rotate and zoom in/out
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 0, 0); //move the scene up (to -0.5 on Y coord)
   controls.update();
@@ -142,6 +142,7 @@ function main() {
       this.pickedObject = null;
       this.pickedObjectSavedColor = 0;
     }
+
     pick(normalizedPosition, scene, camera, time) {
       // restore the color if there is a picked object
       if (this.pickedObject) {
@@ -169,6 +170,51 @@ function main() {
   clearPickPosition();
 
 
+  function getCanvasRelativePosition(event) {
+    const rect = canvas.getBoundingClientRect();//gets left, top, right, bottom, x, y, width, height of the document canvas
+    return {
+      x: (event.clientX - rect.left) * canvas.width  / rect.width,
+      y: (event.clientY - rect.top ) * canvas.height / rect.height,
+    };
+  }
+
+  function setPickPosition(event) {
+    const pos = getCanvasRelativePosition(event);
+console.log(pos.x,' ',pos.y);
+    pickPosition.x = (pos.x / canvas.width ) *  2 - 1;
+    pickPosition.y = (pos.y / canvas.height) * -2 + 1;  // note we flip Y
+    //pickPosition is now in normalized form (between -1 and 1 and the left bottom point is (-1,-1) while the top right point is (1,1))
+  }
+
+  function clearPickPosition() {
+    // unlike the mouse which always has a position
+    // if the user stops touching the screen we want
+    // to stop picking. For now we just pick a value
+    // unlikely to pick something
+    pickPosition.x = -100000;
+    pickPosition.y = -100000;
+  }
+
+  window.addEventListener('mouseenter', setPickPosition);   //
+  window.addEventListener('touchstart', (event) => {       //'touchstart' event occurs when a finger is placed on the window
+    event.preventDefault(); // prevent the window from scrolling
+    setPickPosition(event.touches[0]);
+  }, {passive: false});
+
+  window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+console.log('mousedown');
+    clearPickPosition();
+  });
+  window.addEventListener('mousemove', setPickPosition);   //'mousemove'event occurs when the pointer is moving while it is over the window
+  window.addEventListener('touchmove', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+    setPickPosition(event.touches[0]);
+  });
+
+  //window.addEventListener('mouseout',   clearPickPosition);   //'mouseout' event occurs when a user moves the mouse pointer out of the window, or out of one of its children
+  window.addEventListener('mouseleave', clearPickPosition);  //'mouseleave' event occurs when the pointer is moved out of the window
+  window.addEventListener('mouseout',   clearPickPosition);
+  window.addEventListener('touchend',   clearPickPosition);  //'touchend' event occurs when a finger is removed from the window
+
   function render(time) {
     time *= 0.001;  // convert to seconds;
 
@@ -193,45 +239,8 @@ function main() {
 
     requestAnimationFrame(render);
   }
+
   requestAnimationFrame(render);
-
-  function getCanvasRelativePosition(event) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: (event.clientX - rect.left) * canvas.width  / rect.width,
-      y: (event.clientY - rect.top ) * canvas.height / rect.height,
-    };
-  }
-
-  function setPickPosition(event) {
-    const pos = getCanvasRelativePosition(event);
-    pickPosition.x = (pos.x / canvas.width ) *  2 - 1;
-    pickPosition.y = (pos.y / canvas.height) * -2 + 1;  // note we flip Y
-  }
-
-  function clearPickPosition() {
-    // unlike the mouse which always has a position
-    // if the user stops touching the screen we want
-    // to stop picking. For now we just pick a value
-    // unlikely to pick something
-    pickPosition.x = -100000;
-    pickPosition.y = -100000;
-  }
-  window.addEventListener('mousemove', setPickPosition);
-  window.addEventListener('mouseout', clearPickPosition);
-  window.addEventListener('mouseleave', clearPickPosition);
-
-  window.addEventListener('touchstart', (event) => {
-    // prevent the window from scrolling
-    event.preventDefault();
-    setPickPosition(event.touches[0]);
-  }, {passive: false});
-
-  window.addEventListener('touchmove', (event) => {
-    setPickPosition(event.touches[0]);
-  });
-
-  window.addEventListener('touchend', clearPickPosition);
 }
 
 main();
