@@ -518,12 +518,16 @@ const menu = new TvertCubesMenu(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signa
       setPickPosition(event.touches[0]);
     }, {passive: false});
 */
-    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
-      setPickPosition(event);
-      pickHelper.pick(pickPosition, scene, camera/*, time*/);
-console.log('pointerdown');
-//      clearPickPosition();
-    });
+
+
+//    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+//      setPickPosition(event);
+//      pickHelper.pick(pickPosition, scene, camera/*, time*/);
+//console.log('pointerdown');
+      //clearPickPosition();
+//    });
+
+
 /*
     window.addEventListener('mousemove', setPickPosition);   //'mousemove'event occurs when the pointer is moving while it is over the window
     window.addEventListener('touchmove', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
