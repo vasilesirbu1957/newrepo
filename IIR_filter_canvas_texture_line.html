@@ -69,24 +69,27 @@
     const near =0.1;  // the camera near distance (frustrum start)
     const far = 60;    // the camera far distance (frustrum end)
 */
-    const camera = createPerspectiveCamera({fov:35, aspect:2, near:0.1, far:60, x:0, y:0, z:-9}, scene);
+    const camera = createPerspectiveCamera({fov:35, aspect:2, near:0.1, far:60, x:0, y:0, z:9}, scene);
 
     // put the camera on a pole (parent it to an object)
     // so we can spin the pole to move the camera around the scene
+    /*
     const cameraPole = new THREE.Object3D();
     scene.add(cameraPole);
     cameraPole.add(camera);
+    */
 
     // orbit controls  - rotate and zoom in/out
     const controls = new OrbitControls(camera, canvas);
     controls.target.set(0, 0, 0); //move the scene up (to -0.5 on Y coord)
     controls.update();
-    //limit zoom in and out when using THREE.OrbitControls with perspective camera:
+       //limit zoom in and out when using THREE.OrbitControls with perspective camera:
     controls.minDistance = 5.0;
     controls.maxDistance = 60.0;
     //limit zoom in and out when using THREE.OrbitControls with ortographic camera:
     //controls.minZoom = 2.0;
     //controls.maxZoom = 40.0;
+
 
     //hemisphere light to have light from everywhere
     const Hlight = createHemisphereLight({skyColor:0xFFFFFF, groundColor:0xB97A20, intensity:3}, scene);
@@ -112,202 +115,11 @@ const fd=1024;  //sampling rate, Hz
 const f=16;//512; //signal frequency, Hz
 for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd); //fill the signal buffer without noise
 
-var canvas1 = document.createElement('canvas'); //create a canvas
-canvas1.width = canvas_width;   //canvas width
-canvas1.height = canvas1_height;  //canvas height
-var ctx1 = canvas1.getContext('2d'); //create a canvas context
-ctx1.fillStyle = '#440044'; //'#333333'; //fill color
-
-function drawSignal() {
-  ctx1.beginPath();
-  ctx1.clearRect(canvas1.width/2+1, 12+1, canvas1.width/2-2*6-1, canvas1_height-2*12-1);
-  //ctx1.clearRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
-  //ctx1.stroke();
-  //ctx1.fillStyle = '#440044';
-  ctx1.fillRect(canvas1.width/2+1, ym1-signal_ampl, canvas1.width/2-2*8, 2*signal_ampl); //fill rectangle
-  //ctx1.fillRect(1, ym1-signal_ampl, canvas1.width-2*1, 2*signal_ampl); //fill rectangle
-
-  ctx1.moveTo(canvas1.width/2+12,ym1);
-  for (let i = 0; i < buflen; i++) {
-    isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
-    ctx1.lineTo((i+canvas1.width/2+10),ym1 - isign[i]); //draw the signal with noise
-  }
-
-  /*
-  ctx1.moveTo(8,ym1);
-  for (let i = 0; i < 256; i++) {
-    isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);
-    ctx1.lineTo(4*(i+3),ym1 - isign[i]);
-  }
-  */
-  ctx1.stroke();
-}
-
-function createCanvasTexture1() { //texture from a canvas
-  ctx1.beginPath();
-  ctx1.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
-  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1_height-2*8);
-  ctx1.strokeRect(canvas1.width/2, 12, canvas1.width/2-2*6, canvas1_height-2*12);
-  ctx1.moveTo(canvas1.width/2-4,7);
-  ctx1.lineTo(canvas1.width/2-4,canvas1.height-8);
-  ctx1.stroke();
-  drawSignal();
-    /*
-    ctx1.font = "40px Times";
-    ctx1.fillStyle = '#888844'; //fill color
-    ctx1.textAlign = "center";
-    ctx1.fillText("La mulți", canvas1.width/2, canvas1.height/2-50);
-    ctx1.fillText("ani", canvas1.width/2, canvas1.height/2-20);
-    ctx1.fillText("scumpa și", canvas1.width/2, canvas1.height/2+10);
-    ctx1.fillText("iubita mea", canvas1.width/2, canvas1.height/2+40);
-    ctx1.fillText("soție!", canvas1.width/2, canvas1.height/2+70);
-
-    ctx1.beginPath();
-    ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-    ctx1.stroke();
-    */
-  const texture = new THREE.CanvasTexture(canvas1);
-  return texture;
-}
-const texture1 = createCanvasTexture1();
-
-var canvas2 = document.createElement('canvas'); //create a canvas
-canvas2.width = canvas_width;   //canvas width
-canvas2.height = canvas_height;  //canvas height
-var ctx2 = canvas2.getContext('2d'); //create a canvas context
-ctx2.fillStyle = '#440044'; //'#333333'; //fill color
-
 const x=[];
 const y=[];
 const sp=[];
 
-function drawSpectrum() {
-    /*
-    var angle;
-    for (let i = 0; i < 129; i++) {
-      angle=2*Math.PI*Math.random();
-      x[i]=50*Math.cos(angle);
-      y[i]=50*Math.sin(angle);
-    }
-    for (let i = 129; i < 256; i++) {
-      x[i]=x[256-i];
-      y[i]=-y[256-i];
-    }
-    for (let n = 0; n < 256; n++) {
-      noise[n]=0;
-      for (let i = 0; i < 129; i++) {
-        noise[n] = noise[n] + x[i]*Math.cos(2*Math.PI*i*n/256)-y[i]*Math.sin(2*Math.PI*i*n/256);
-      }
-      noise[n]=noise[n]/16;
-    }
-    */
-  for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics
-    x[n]=0;
-    y[n]=0;
-    for (let i = 0; i < buflen; i++) {
-      x[n] = x[n] + isign[i]*Math.cos(2*Math.PI*i*n/buflen);
-      y[n] = y[n] + isign[i]*Math.sin(2*Math.PI*i*n/buflen);
-    }
-    sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
-  }
-  for (let n = buflen/2+1; n < buflen; n++) {
-    x[n]=x[buflen-n];
-    y[n]=-y[buflen-n];
-    sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
-  }
-  /*
-  for (let n = 0; n < buflen; n++) { //calculate signal harmonics
-    x[n]=0;
-    y[n]=0;
-    for (let i = 0; i < buflen; i++) {
-      x[n] = x[n] + isign[i]*Math.cos(2*Math.PI*i*n/buflen);
-      y[n] = y[n] + isign[i]*Math.sin(2*Math.PI*i*n/buflen);
-    }
-    sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
-  }
-  */
-
-  ctx2.beginPath();
-  //ctx2.clearRect(0, 0, canvas2.width, canvas2.height); //fill rectangle
-  ctx2.clearRect(canvas2.width/2+1, 12+1, canvas2.width/2-2*6-1, canvas_height-2*12-1);
-  //ctx2.clearRect(canvas2.width/2+1, ym-signal_ampl, canvas2.width/2-2*8, 2*signal_ampl);
-  //ctx2.stroke();
-    //ctx1.fillStyle = '#440044';
-  ctx2.fillRect(canvas2.width/2+1, ym-signal_ampl, canvas2.width/2-2*8, 2*signal_ampl); //fill rectangle
-  //ctx2.fillRect(1, ym-signal_ampl, canvas2.width-2*1, 2*signal_ampl); //fill rectangle
-  //ctx2.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
-  //ctx2.strokeRect(8, 8, canvas2.width-2*8, canvas_height-2*8);
-  ctx2.moveTo(canvas2.width/2+12,ym); //draw signal with noise spectrum
-  //ctx2.moveTo(11,ym);
-  ctx2.lineTo(canvas2.width/2+buflen,ym);
-  for (let i = 0; i < buflen; i++) {
-    ctx2.moveTo(canvas2.width/2+11+i,ym);
-    ctx2.lineTo(canvas2.width/2+11+i,ym-sp[i]/2);
-  }
-  ctx2.stroke();
-
-
-}
-
-function createCanvasTexture2() { //texture from a canvas
-  ctx2.beginPath();
-  ctx2.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
-  ctx2.strokeRect(8, 8, canvas2.width-2*8, canvas_height-2*8);
-  ctx2.strokeRect(canvas2.width/2, 12, canvas2.width/2-2*6, canvas_height-2*12);
-  ctx2.moveTo(canvas2.width/2-4,7);
-  ctx2.lineTo(canvas2.width/2-4,canvas_height-8);
-  ctx2.stroke();
-
-  drawSpectrum();
-    /*
-    ctx1.font = "40px Times";
-    ctx1.fillStyle = '#888844'; //fill color
-    ctx1.textAlign = "center";
-    ctx1.fillText("La mulți", canvas1.width/2, canvas1.height/2-50);
-    ctx1.fillText("ani", canvas1.width/2, canvas1.height/2-20);
-    ctx1.fillText("scumpa și", canvas1.width/2, canvas1.height/2+10);
-    ctx1.fillText("iubita mea", canvas1.width/2, canvas1.height/2+40);
-    ctx1.fillText("soție!", canvas1.width/2, canvas1.height/2+70);
-
-    ctx1.beginPath();
-    ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-    ctx1.stroke();
-    */
-  const texture = new THREE.CanvasTexture(canvas2);
-  return texture;
-}
-const texture2 = createCanvasTexture2();
-
-
 /*
-    function createCanvasTexture2() { //texture from a canvas
-      var canvas1 = document.createElement('canvas'); //create a canvas
-      var ctx1 = canvas1.getContext('2d'); //create a canvas context
-      canvas1.width = 1024;   //canvas width
-      canvas1.height = 256;  //canvas height
-      ctx1.fillStyle = '#444400'; //'#333333'; //fill color
-      ctx1.fillRect(1, 1, canvas1.width-2*1, canvas1.height-2*1); //fill rectangle
-      ctx1.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
-      ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
-      ctx1.font = "40px Times";
-      ctx1.fillStyle = '#888844'; //fill color
-      ctx1.textAlign = "center";
-
-      //ctx1.fillText("Cele mai", canvas1.width/2, canvas1.height/2-50);
-      //ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
-      //ctx1.fillText("felicitări", canvas1.width/2, canvas1.height/2+10);
-      //ctx1.fillText("cu ziua", canvas1.width/2, canvas1.height/2+40);
-      //ctx1.fillText("de naștere!", canvas1.width/2, canvas1.height/2+70);
-
-      //ctx1.beginPath();
-      //ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-      //ctx1.stroke();
-
-      const texture = new THREE.CanvasTexture(canvas1);
-      return texture;
-    }
-const texture2 = createCanvasTexture2();
-*/
 function createCanvasTexture3() { //texture from a canvas
   var canvas1 = document.createElement('canvas'); //create a canvas
   var ctx1 = canvas1.getContext('2d'); //create a canvas context
@@ -320,60 +132,409 @@ function createCanvasTexture3() { //texture from a canvas
   ctx1.font = "40px Times";
   ctx1.fillStyle = '#888844'; //fill color '#333333'
   ctx1.textAlign = "center";
-  /*
-  ctx1.fillText("Multă", canvas1.width/2, canvas1.height/2-50);
-  ctx1.fillText("sănătate,", canvas1.width/2, canvas1.height/2-20);
-  ctx1.fillText("bucurii", canvas1.width/2, canvas1.height/2+10);
-  ctx1.fillText("și zile", canvas1.width/2, canvas1.height/2+40);
-  ctx1.fillText("senine!", canvas1.width/2, canvas1.height/2+70);
 
-  ctx1.beginPath();
-  ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-  ctx1.stroke();
-  */
+  //ctx1.fillText("Multă", canvas1.width/2, canvas1.height/2-50);
+  //ctx1.fillText("sănătate,", canvas1.width/2, canvas1.height/2-20);
+  //ctx1.fillText("bucurii", canvas1.width/2, canvas1.height/2+10);
+  //ctx1.fillText("și zile", canvas1.width/2, canvas1.height/2+40);
+  //ctx1.fillText("senine!", canvas1.width/2, canvas1.height/2+70);
+
+  //ctx1.beginPath();
+  //ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+  //ctx1.stroke();
+
   const texture = new THREE.CanvasTexture(canvas1);
   return texture;
 }
-const texture3 = createCanvasTexture3();
+//const texture3 = createCanvasTexture3();
+*/
+
+
+class TvertCubesMenu {
+  canvas=[];
+  ctx=[];
+  texts;
+  bgcolor;
+  fgcolor;
+  textures=[];
+  cubes=[];
+  geometry;
+  materials=[];
+  tblrmaterial;
+  previousSelectedCube;
+
+  constructor(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
+    this.texts=texts;
+    this.bgcolor=bgcolor;
+    this.fgcolor=fgcolor;
+    this.bgcolor1=bgcolor1;
+    this.previousSelectedCube=null;
+    this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
+
+    let hh=(cyup-cydn)/this.texts.length;
+    let h=hh;
+    if (h>1) h=1;
+    for (let i=0; i<this.texts.length; i++)   {//create all textures
+      this.canvas[i] = document.createElement('canvas'); //create a canvas
+      this.ctx[i] = this.canvas[i].getContext('2d'); //create a canvas context
+      this.canvas[i].width = 256;   //canvas width
+      this.canvas[i].height = 256;  //canvas height
+      this.drawCanvas(i,0);
+      this.textures[i] = new THREE.CanvasTexture(this.canvas[i]);
+
+      this.geometry = new THREE.BoxGeometry(1, h, h);//width,height, deepth
+      this.materials[i] = new THREE.MeshPhongMaterial({map: this.textures[i]}); //make a material of the given texture
+      this.cubes[i] = new THREE.Mesh(this.geometry, [
+        this.materials[i],//Front texture
+        this.tblrmaterial, // top
+        this.tblrmaterial, // bottom
+        this.tblrmaterial,//left texture
+        this.materials[i],//front texture //back texture
+        this.tblrmaterial,//right texture
+      ]); //make a mesh (here - a cube) from the given materials and geometry
+
+      this.cubes[i].position.x=x;
+      this.cubes[i].position.y=cydn+h/2+i*hh;
+      this.cubes[i].position.z=z;
+      this.cubes[i].userData={
+        mod  : 0,
+        func : (mod)=>{this.drawCanvas(i,mod); this.cubes[i].userData.mod=mod; this.textures[i].needsUpdate=true;},
+
+        pointerDown : ()=>{
+          if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
+          if (this.cubes[i] != this.previousSelectedCube ) {
+            this.cubes[i].userData.selectTexture();
+            this.previousSelectedCube = this.cubes[i];
+          } else this.previousSelectedCube = null;
+        },
+        selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true;},
+        unselectTexture : ()=>{this.drawCanvas(i,0); this.textures[i].needsUpdate=true;},
+      };
+
+      camera.add(this.cubes[i]);
+    }
+  }
+
+  drawCanvas(i,mode){//mode=0 uses bgcolor and mode !=0 uses bgcolor1
+    let canvas=this.canvas[i];
+    let ctx=this.ctx[i];
+    let strings=this.texts[i];
+    ctx.beginPath();
+    ctx.strokeStyle = this.fgcolor;//'gold';
+    if (mode==0){
+      ctx.fillStyle = this.bgcolor;//'#004444'; //'#333333'; //fill color
+    } else {
+      ctx.fillStyle = this.bgcolor1;//'#004444'; //'#333333'; //fill color
+    }
+
+    ctx.fillRect(1, 1, canvas.width-2*1, canvas.height-2*1); //fill rectangle
+    ctx.strokeRect(8, 8, canvas.width-2*8, canvas.height-2*8);
+    ctx.font = "40px Times";
+    ctx.fillStyle = this.fgcolor;//'#888844'; //fill color '#333333'
+    ctx.textAlign = "center";
+
+    let n;
+    if (strings.length%2==0) n=strings.length/2; else n=(strings.length-1)/2;
+    if (strings.length%2==0) {
+      for (let i=0; i<strings.length; i++)
+      ctx.fillText(strings[i], canvas.width/2, canvas.height/2+25+(i-n)*30);
+    }
+    else {
+      for (let i=0; i<strings.length; i++)
+      ctx.fillText(strings[i], canvas.width/2, canvas.height/2+10+(i-n)*30);
+    }
+    ctx.arc(canvas.width/2, canvas.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+    ctx.stroke();
+  }
+
+}
+//x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
+const menu = new TvertCubesMenu(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signal','frequency,','Hz'],['Noise','level','%'],['IIR filter'],['ddddd','eee','fffff']],camera);
 
     //build a geometry
     const boxWidth = 5;
     const boxHeight = 1;
     const boxDepth = 5;
-    const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-    const geometry1 = new THREE.BoxGeometry(boxWidth, boxHeight*2, boxDepth);
 
-    const cubesPole = new THREE.Object3D();
-    scene.add(cubesPole);
+    class TdisplaySpectrumCube {
+      bgcolor;
+      fgcolor;
+      canvas;
+      ctx;
+      texture;
+      cube;
+      constructor (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
+        this.fgcolor=fgcolor;
+        this.bgcolor=bgcolor;
 
-    function makeCube(geometry, color, x, y, texture) {// make a cube using the geometry and color
-      //const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
-      //const material = new THREE.MeshPhongMaterial({map: texture1, overdraw: true }); //make a material of the given texture
-      const material = new THREE.MeshPhongMaterial({map: texture}); //make a material of the given texture
+        this.canvas = document.createElement('canvas'); //create a canvas
+        let canvas=this.canvas;
+        this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+        canvas.width = canvas_width;   //canvas width
+        canvas.height = canvas_height;  //canvas height
+        this.ctx = canvas.getContext('2d'); //create a canvas context
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.font = "40px Times";
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillStyle = this.fgcolor;
+        ctx.textAlign = "left";
+        ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+        ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
 
-      //const cube = new THREE.Mesh(geometry, material); //make a mesh (here - a cube) from the given material and geometry
-      const cube = new THREE.Mesh(geometry, [
-        material,//Front texture
-        material,//back texture
-        new THREE.MeshPhongMaterial({ color: 0x440044 }), // top
-        new THREE.MeshPhongMaterial({ color: 0x004444 }), // bottom
-        material,//left texture
-        material,//right texture
-      ]); //make a mesh (here - a cube) from the given materials and geometry
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+        ctx.moveTo(this.canvas.width/2-4,7);
+        ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
+        ctx.stroke();
+        ctx.fillStyle = this.bgcolor;
+        this.drawSpectrum();
 
-      //scene.add(cube);
-      cubesPole.add(cube);
-      cube.position.x = x;
-      cube.position.y = y;
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
+        let geometry = new THREE.BoxGeometry(w, h, d);
+        this.cube = new THREE.Mesh(geometry, [
+          material,//Front texture
+          material,//back texture
+          material0,//top material
+          material0,// bottom
+          material,//left texture
+          material,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+        scene.add(this.cube);
+    //    cubesPole.add(cube);
+        this.cube.position.x = x;
+        this.cube.position.y = y;
+        this.cube.position.z = z;
+      }
 
-      return cube;
+      drawSpectrum() {
+
+        for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics
+          x[n]=0;
+          y[n]=0;
+          for (let i = 0; i < buflen; i++) {
+            x[n] = x[n] + isign[i]*Math.cos(2*Math.PI*i*n/buflen);
+            y[n] = y[n] + isign[i]*Math.sin(2*Math.PI*i*n/buflen);
+          }
+          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
+        }
+        for (let n = buflen/2+1; n < buflen; n++) {
+          x[n]=x[buflen-n];
+          y[n]=-y[buflen-n];
+          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
+        }
+        let canvas=this.canvas;
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
+        ctx.fillStyle = this.bgcolor;
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+        ctx.moveTo(canvas.width/2+12,ym); //draw signal with noise spectrum
+        ctx.lineTo(canvas.width/2+buflen,ym);
+        for (let i = 0; i < buflen; i++) {
+          ctx.moveTo(canvas.width/2+11+i,ym);
+          ctx.lineTo(canvas.width/2+11+i,ym-sp[i]/2);
+        }
+        ctx.stroke();
+        this.texture.needsUpdate=true;
+      }
     }
 
-    const cubes = [ //create 3 cubes and add them to the scene
-      makeCube(geometry1, 0x44aa88,  0, 1.0, texture1),
-      makeCube(geometry, 0x8844aa,  0, -0.5, texture2),
-      makeCube(geometry, 0xaa8844,  0, -1.5, texture3),
-    ];
+    class TdisplaySignalCube {
+      bgcolor;
+      fgcolor;
+      canvas;
+      ctx;
+      texture;
+      cube;
+      constructor (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
+        this.fgcolor=fgcolor;
+        this.bgcolor=bgcolor;
+
+        this.canvas = document.createElement('canvas'); //create a canvas
+        let canvas=this.canvas;
+        this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+        canvas.width = canvas_width;   //canvas width
+        canvas.height = canvas_height;  //canvas height
+        this.ctx = canvas.getContext('2d'); //create a canvas context
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.font = "40px Times";
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillStyle = this.fgcolor;
+        ctx.textAlign = "left";
+        ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+        ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
+
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+        ctx.moveTo(this.canvas.width/2-4,7);
+        ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
+        ctx.stroke();
+        ctx.fillStyle = this.bgcolor;
+        this.drawSignal();
+
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
+        let geometry = new THREE.BoxGeometry(w, h, d);
+        this.cube = new THREE.Mesh(geometry, [
+          material,//Front texture
+          material,//back texture
+          material0,//top material
+          material0,// bottom
+          material,//left texture
+          material,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+        scene.add(this.cube);
+    //    cubesPole.add(cube);
+        this.cube.position.x = x;
+        this.cube.position.y = y;
+        this.cube.position.z = z;
+      }
+
+      drawSignal() {
+        let canvas=this.canvas;
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
+        ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+        ctx.moveTo(canvas.width/2+12,ym1);
+        for (let i = 0; i < buflen; i++) {
+          isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
+          ctx.lineTo((i+canvas.width/2+10),ym1 - isign[i]); //draw the signal with noise
+        }
+        ctx.stroke();
+        this.texture.needsUpdate = true;//renew the texture when repainting the scene
+      }
+    }
+
+    class TadjustParameterValueCube {
+      bgcolor;
+      fgcolor;
+      canvas;
+      ctx;
+      texture;
+      cube;
+      cubes=[];
+      constructor (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
+        this.fgcolor=fgcolor;
+        this.bgcolor=bgcolor;
+
+        this.canvas = document.createElement('canvas'); //create a canvas
+        let canvas=this.canvas;
+        canvas.width = canvas_width;   //canvas width
+        canvas.height = canvas_height;  //canvas height
+        this.ctx = canvas.getContext('2d'); //create a canvas context
+        let ctx=this.ctx;
+        this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+        ctx.beginPath();
+        ctx.fillStyle = this.bgcolor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "40px Times";
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillStyle = this.fgcolor;
+        ctx.textAlign = "left";
+        //ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+        //ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
+
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        //ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+        //ctx.moveTo(this.canvas.width/2-4,7);
+      //  ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
+        ctx.stroke();
+        ctx.fillStyle = this.bgcolor;
+        //this.drawSignal();
+
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
+        let geometry = new THREE.BoxGeometry(w, h, d);
+        this.cube = new THREE.Mesh(geometry, [
+          material,//Front texture
+          material,//back texture
+          material0,//top material
+          material0,// bottom
+          material,//left texture
+          material,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+        scene.add(this.cube);
+    //    cubesPole.add(cube);
+        this.cube.position.x = x;
+        this.cube.position.y = y;
+        this.cube.position.z = z;
+      }
+    }
+
+    const displaySignalCube  =  new TdisplaySignalCube(boxWidth, boxHeight*2, boxDepth,0,   1,0,'#440044','gold',canvas_width,canvas1_height,scene);
+    const displaySpectrumCube = new TdisplaySpectrumCube(boxWidth, boxHeight, boxDepth,0,-0.5,0,'#440044','gold',canvas_width,canvas_height,scene);
+//w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
+    const adjustParameterValueCube = new TadjustParameterValueCube(boxWidth, boxHeight, boxDepth,0,-1.5,0,'#004444','gold',canvas_width,canvas_height,scene);
+
+    class PickHelper {
+      constructor() {
+        this.raycaster = new THREE.Raycaster();
+        this.selectedObject = null; // the former selected object
+      }
+
+      pick(normalizedPosition, scene, camera/*, time*/) {
+        this.raycaster.setFromCamera(normalizedPosition, camera);  // cast a ray through the frustum
+        // get the list of objects the ray intersected
+        const intersectedObjects = this.raycaster.intersectObjects(camera.children);
+        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown();
+      }
+    }
+
+    const pickPosition = {x: 0, y: 0};
+    const pickHelper = new PickHelper();
+
+    function getCanvasRelativePosition(event) {
+      const rect = canvas.getBoundingClientRect();//gets left, top, right, bottom, x, y, width, height of the document canvas
+      return {
+        x: (event.clientX - rect.left) * canvas.width  / rect.width,
+        y: (event.clientY - rect.top ) * canvas.height / rect.height,
+      };
+    }
+
+    function setPickPosition(event) {
+      const pos = getCanvasRelativePosition(event);
+      pickPosition.x = (pos.x / canvas.width ) *  2 - 1;
+      pickPosition.y = (pos.y / canvas.height) * -2 + 1;  // note we flip Y
+      //pickPosition is now in normalized form (between -1 and 1 and the left bottom point is (-1,-1) while the top right point is (1,1))
+    }
+/*
+    function clearPickPosition() {
+      // unlike the mouse which always has a position
+      // if the user stops touching the screen we want
+      // to stop picking. For now we just pick a value
+      // unlikely to pick something
+      pickPosition.x = -100000;
+      pickPosition.y = -100000;
+    }
+
+    window.addEventListener('mouseenter', setPickPosition);   //
+    window.addEventListener('touchstart', (event) => {       //'touchstart' event occurs when a finger is placed on the window
+      event.preventDefault(); // prevent the window from scrolling
+      setPickPosition(event.touches[0]);
+    }, {passive: false});
+*/
+    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+      setPickPosition(event);
+      pickHelper.pick(pickPosition, scene, camera/*, time*/);
+console.log('pointerdown');
+//      clearPickPosition();
+    });
+/*
+    window.addEventListener('mousemove', setPickPosition);   //'mousemove'event occurs when the pointer is moving while it is over the window
+    window.addEventListener('touchmove', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+      setPickPosition(event.touches[0]);
+    });
+
+    //window.addEventListener('mouseout',   clearPickPosition);   //'mouseout' event occurs when a user moves the mouse pointer out of the window, or out of one of its children
+    window.addEventListener('mouseleave', clearPickPosition);  //'mouseleave' event occurs when the pointer is moved out of the window
+    window.addEventListener('mouseout',   clearPickPosition);
+    window.addEventListener('touchend',   clearPickPosition);  //'touchend' event occurs when a finger is removed from the window
+*/
 
     function resizeRendererToDisplaySize(renderer) {
       const canvas = renderer.domElement;
@@ -386,6 +547,10 @@ const texture3 = createCanvasTexture3();
       return needResize;
     }
 
+//    controls.addEventListener('change', (event) => {console.log('change'); });
+//    controls.addEventListener('start', (event) => console.log("Controls Start Event",event));
+//    controls.addEventListener('end', (event) => console.log("Controls End Event"));
+
     function render(time) { //render function rotates cubes and renderer displays them on screen
       time *= 0.001;  // convert time to seconds
 
@@ -395,10 +560,11 @@ const texture3 = createCanvasTexture3();
         camera.updateProjectionMatrix();
       }
 
-      drawSignal();
-      texture1.needsUpdate = true;
-      drawSpectrum();
-      texture2.needsUpdate = true;
+      displaySignalCube.drawSignal();
+      //drawSignal();
+      //texture1.needsUpdate = true;
+      displaySpectrumCube.drawSpectrum();
+      //texture2.needsUpdate = true;
 
 /*
       cubes.forEach((cube, ndx) => {
@@ -411,6 +577,7 @@ const texture3 = createCanvasTexture3();
       cameraPole.rotation.y = -time * 0.05; //rotate camera
       cubesPole.rotation.y = -time * 0.15; //rotate c3 cubes
 */
+
       renderer.render(scene, camera); //renderer renders the given scene using given camera
       requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
     }
