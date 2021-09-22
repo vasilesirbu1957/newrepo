@@ -839,22 +839,29 @@ class TvertCubesMenu {
       setPickPosition(event.touches[0]);
     }, {passive: false});
 */
-
-
+/*
+var cursorX;
+var cursorY;
+document.onmousedown = function(e){
+    cursorX = e.pageX;
+    cursorY = e.pageY;
+    console.log(cursorX,' ',cursorY)
+*/
     window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
       setPickPosition(event);
       pickHelper.pick(pickPosition, scene, camera/*, time*/);
- console.log('pointerdown');
+ console.log('pointerdown',event.pageX,' ',event.pageY);
       //clearPickPosition();
     });
 
 
-/*
-    window.addEventListener('mousemove', setPickPosition);   //'mousemove'event occurs when the pointer is moving while it is over the window
-    window.addEventListener('touchmove', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
-      setPickPosition(event.touches[0]);
-    });
 
+    //window.addEventListener('mousemove', setPickPosition);   //'mousemove'event occurs when the pointer is moving while it is over the window
+    window.addEventListener('touchstart', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+      setPickPosition(event.touches[0]);
+      pickHelper.pick(pickPosition, scene, camera/*, time*/);
+    });
+/*
     //window.addEventListener('mouseout',   clearPickPosition);   //'mouseout' event occurs when a user moves the mouse pointer out of the window, or out of one of its children
     window.addEventListener('mouseleave', clearPickPosition);  //'mouseleave' event occurs when the pointer is moved out of the window
     window.addEventListener('mouseout',   clearPickPosition);
@@ -873,7 +880,9 @@ class TvertCubesMenu {
     }
 
 //    controls.addEventListener('change', (event) => {console.log('change'); });
-//    controls.addEventListener('start', (event) => console.log("Controls Start Event",event));
+    controls.addEventListener('start', (event) => {
+      console.log("Controls Start Event", event)
+    });
 //    controls.addEventListener('end', (event) => console.log("Controls End Event"));
 
     function render(time) { //render function rotates cubes and renderer displays them on screen
