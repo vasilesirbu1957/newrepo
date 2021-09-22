@@ -290,12 +290,13 @@
 
         let canvas=this.canvas;
         let ctx=this.ctx;
+  /*      
         //ctx.beginPath();
         ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
         ctx.fillStyle = this.bgcolor;
         ctx.strokeStyle = this.fgcolor;
         ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
-/*
+
         for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics (first part)
           x[n]=0;
           y[n]=0;
