@@ -802,7 +802,7 @@ class TvertCubesMenu {
         this.raycaster.setFromCamera(normalizedPosition, camera);  // cast a ray through the frustum
         // get the list of objects the ray intersected
         const intersectedObjects = this.raycaster.intersectObjects(camera.children);
-//!!!!        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown();
+        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown();
       }
     }
 
@@ -840,13 +840,13 @@ class TvertCubesMenu {
     }, {passive: false});
 */
 
-//!!!!!!!!!!!!!
-//    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
-//      setPickPosition(event);
-//      pickHelper.pick(pickPosition, scene, camera/*, time*/);
-// console.log('pointerdown');
+
+    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+      setPickPosition(event);
+      pickHelper.pick(pickPosition, scene, camera/*, time*/);
+ console.log('pointerdown');
       //clearPickPosition();
-//    });
+    });
 
 
 /*
