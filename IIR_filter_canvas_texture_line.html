@@ -150,7 +150,7 @@ function createCanvasTexture3() { //texture from a canvas
 //const texture3 = createCanvasTexture3();
 */
 
-const aaa = {
+const vertCubesMenu = {
   canvas:[],
   ctx:[],
   texts:[],
@@ -247,7 +247,7 @@ const aaa = {
   }
 }
 //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
-const menu = aaa.constructor(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signal','frequency,','Hz'],['Noise','level','%'],['IIR filter'],['ddddd','eee','fffff']],camera);
+vertCubesMenu.constructor(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signal','frequency,','Hz'],['Noise','level','%'],['IIR filter'],['ddddd','eee','fffff']],camera);
 
 
 /*
@@ -358,6 +358,221 @@ class TvertCubesMenu {
     const boxWidth = 5;
     const boxHeight = 1;
     const boxDepth = 5;
+
+
+    const displaySpectrumCube = {
+      bgcolor:0x440044,
+      fgcolor:'gold',
+      canvas:null,
+      ctx:null,
+      texture:null,
+      cube:null,
+      constructor:function(w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
+        this.fgcolor=fgcolor;
+        this.bgcolor=bgcolor;
+
+        this.canvas = document.createElement('canvas'); //create a canvas
+        let canvas=this.canvas;
+        this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+        canvas.width = canvas_width;   //canvas width
+        canvas.height = canvas_height;  //canvas height
+        this.ctx = canvas.getContext('2d'); //create a canvas context
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.font = "40px Times";
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillStyle = this.fgcolor;
+        ctx.textAlign = "left";
+        ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+        ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
+
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+        ctx.moveTo(this.canvas.width/2-4,7);
+        ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
+        ctx.stroke();
+        ctx.fillStyle = this.bgcolor;
+        this.drawSpectrum();
+
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
+        let geometry = new THREE.BoxGeometry(w, h, d);
+        this.cube = new THREE.Mesh(geometry, [
+          material,//Front texture
+          material,//back texture
+          material0,//top material
+          material0,// bottom
+          material,//left texture
+          material,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+        scene.add(this.cube);
+    //    cubesPole.add(cube);
+        this.cube.position.x = x;
+        this.cube.position.y = y;
+        this.cube.position.z = z;
+      },
+
+      drawSpectrum:function() {
+
+        for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics
+          x[n]=0;
+          y[n]=0;
+          for (let i = 0; i < buflen; i++) {
+            x[n] = x[n] + isign[i]*Math.cos(2*Math.PI*i*n/buflen);
+            y[n] = y[n] + isign[i]*Math.sin(2*Math.PI*i*n/buflen);
+          }
+          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
+        }
+        for (let n = buflen/2+1; n < buflen; n++) {
+          x[n]=x[buflen-n];
+          y[n]=-y[buflen-n];
+          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
+        }
+        let canvas=this.canvas;
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
+        ctx.fillStyle = this.bgcolor;
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+        ctx.moveTo(canvas.width/2+12,ym); //draw signal with noise spectrum
+        ctx.lineTo(canvas.width/2+buflen,ym);
+        for (let i = 0; i < buflen; i++) {
+          ctx.moveTo(canvas.width/2+11+i,ym);
+          ctx.lineTo(canvas.width/2+11+i,ym-sp[i]/2);
+        }
+        ctx.stroke();
+        this.texture.needsUpdate=true;
+      }
+    }
+
+    const displaySignalCube = {
+      bgcolor:0x440044,
+      fgcolor:'gold',
+      canvas:null,
+      ctx:null,
+      texture:null,
+      cube:null,
+      constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
+        this.fgcolor=fgcolor;
+        this.bgcolor=bgcolor;
+
+        this.canvas = document.createElement('canvas'); //create a canvas
+        let canvas=this.canvas;
+        this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+        canvas.width = canvas_width;   //canvas width
+        canvas.height = canvas_height;  //canvas height
+        this.ctx = canvas.getContext('2d'); //create a canvas context
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.font = "40px Times";
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillStyle = this.fgcolor;
+        ctx.textAlign = "left";
+        ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+        ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
+
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+        ctx.moveTo(this.canvas.width/2-4,7);
+        ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
+        ctx.stroke();
+        ctx.fillStyle = this.bgcolor;
+        this.drawSignal();
+
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
+        let geometry = new THREE.BoxGeometry(w, h, d);
+        this.cube = new THREE.Mesh(geometry, [
+          material,//Front texture
+          material,//back texture
+          material0,//top material
+          material0,// bottom
+          material,//left texture
+          material,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+        scene.add(this.cube);
+    //    cubesPole.add(cube);
+        this.cube.position.x = x;
+        this.cube.position.y = y;
+        this.cube.position.z = z;
+      },
+
+      drawSignal:function() {
+        let canvas=this.canvas;
+        let ctx=this.ctx;
+        ctx.beginPath();
+        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
+        ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+        ctx.moveTo(canvas.width/2+12,ym1);
+        for (let i = 0; i < buflen; i++) {
+          isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
+          ctx.lineTo((i+canvas.width/2+10),ym1 - isign[i]); //draw the signal with noise
+        }
+        ctx.stroke();
+        this.texture.needsUpdate = true;//renew the texture when repainting the scene
+      }
+    }
+
+    const adjustParameterValueCube = {
+      bgcolor:0x440044,
+      fgcolor:'gold',
+      canvas:null,
+      ctx:null,
+      texture:null,
+      cube:null,
+      constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
+        this.fgcolor=fgcolor;
+        this.bgcolor=bgcolor;
+
+        this.canvas = document.createElement('canvas'); //create a canvas
+        let canvas=this.canvas;
+        canvas.width = canvas_width;   //canvas width
+        canvas.height = canvas_height;  //canvas height
+        this.ctx = canvas.getContext('2d'); //create a canvas context
+        let ctx=this.ctx;
+        this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+        ctx.beginPath();
+        ctx.fillStyle = this.bgcolor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "40px Times";
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillStyle = this.fgcolor;
+        ctx.textAlign = "left";
+        //ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+        //ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
+
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        //ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+        //ctx.moveTo(this.canvas.width/2-4,7);
+      //  ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
+        ctx.stroke();
+        ctx.fillStyle = this.bgcolor;
+        //this.drawSignal();
+
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
+        let geometry = new THREE.BoxGeometry(w, h, d);
+        this.cube = new THREE.Mesh(geometry, [
+          material,//Front texture
+          material,//back texture
+          material0,//top material
+          material0,// bottom
+          material,//left texture
+          material,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+        scene.add(this.cube);
+    //    cubesPole.add(cube);
+        this.cube.position.x = x;
+        this.cube.position.y = y;
+        this.cube.position.z = z;
+      }
+    }
+
+    displaySignalCube.constructor(boxWidth, boxHeight*2, boxDepth,0,   1,0,'#440044','gold',canvas_width,canvas1_height,scene);
+    displaySpectrumCube.constructor(boxWidth, boxHeight, boxDepth,0,-0.5,0,'#440044','gold',canvas_width,canvas_height,scene);
+  //w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
+    adjustParameterValueCube.constructor(boxWidth, boxHeight, boxDepth,0,-1.5,0,'#004444','gold',canvas_width,canvas_height,scene);
 
 /*
     class TdisplaySpectrumCube {
@@ -670,10 +885,10 @@ class TvertCubesMenu {
         camera.updateProjectionMatrix();
       }
 
-//!!!      displaySignalCube.drawSignal();
+      displaySignalCube.drawSignal();
       //drawSignal();
       //texture1.needsUpdate = true;
-//!!!      displaySpectrumCube.drawSpectrum();
+      displaySpectrumCube.drawSpectrum();
       //texture2.needsUpdate = true;
 
 /*
