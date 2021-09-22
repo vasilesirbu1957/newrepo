@@ -56,6 +56,7 @@
           createPerspectiveCamera} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
 
   function main() {
+  //   'use strict';
     const canvas = document.querySelector('#myCanvas');
     const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
     renderer.physicallyCorrectLights = true;
@@ -196,6 +197,7 @@ class TvertCubesMenu {
       this.cubes[i].position.x=x;
       this.cubes[i].position.y=cydn+h/2+i*hh;
       this.cubes[i].position.z=z;
+/*
       this.cubes[i].userData={
         mod  : 0,
         func : (mod)=>{this.drawCanvas(i,mod); this.cubes[i].userData.mod=mod; this.textures[i].needsUpdate=true;},
@@ -210,7 +212,7 @@ class TvertCubesMenu {
         selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true;},
         unselectTexture : ()=>{this.drawCanvas(i,0); this.textures[i].needsUpdate=true;},
       };
-
+*/
       camera.add(this.cubes[i]);
     }
   }
@@ -481,7 +483,7 @@ const menu = new TvertCubesMenu(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signa
         this.raycaster.setFromCamera(normalizedPosition, camera);  // cast a ray through the frustum
         // get the list of objects the ray intersected
         const intersectedObjects = this.raycaster.intersectObjects(camera.children);
-        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown();
+//        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown();
       }
     }
 
@@ -520,12 +522,12 @@ const menu = new TvertCubesMenu(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signa
 */
 
 
-//    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
-//      setPickPosition(event);
-//      pickHelper.pick(pickPosition, scene, camera/*, time*/);
-//console.log('pointerdown');
+    window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
+      setPickPosition(event);
+      pickHelper.pick(pickPosition, scene, camera/*, time*/);
+ console.log('pointerdown');
       //clearPickPosition();
-//    });
+    });
 
 
 /*
