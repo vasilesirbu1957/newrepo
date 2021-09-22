@@ -287,14 +287,14 @@
       },
 
       drawSpectrum:function() {
-        let canvas=this.canvas;
         let ctx=this.ctx;
+        let w = this.canvas.width/2;
 
         //ctx.beginPath();
-        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
+        ctx.clearRect(w+1, 12+1, w-2*6-1, canvas_height-2*12-1);
         ctx.fillStyle = this.bgcolor;
         ctx.strokeStyle = this.fgcolor;
-        ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+        ctx.fillRect(w+1, ym-signal_ampl, w-2*8, 2*signal_ampl); //fill rectangle
 
         for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics (first part)
           x[n]=0;
@@ -315,11 +315,11 @@
         }
 
   ctx.beginPath();
-        ctx.moveTo(canvas.width/2+12,ym); //draw signal with noise spectrum
-        ctx.lineTo(canvas.width/2+buflen,ym);
+        ctx.moveTo(w+12,ym); //draw signal with noise spectrum
+        ctx.lineTo(w+buflen,ym);
         for (let i = 0; i < buflen; i++) {
-          ctx.moveTo(canvas.width/2+11+i,ym);
-          ctx.lineTo(canvas.width/2+11+i,ym-sp[i]/2);
+          ctx.moveTo(w+11+i,ym);
+          ctx.lineTo(w+11+i,ym-sp[i]/2);
         }
         ctx.stroke();
       }
@@ -379,18 +379,17 @@
       },
 
       drawSignal:function() {
-
-        let canvas=this.canvas;
-        let ctx=this.ctx;
-        //ctx.beginPath();
-        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
-        ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+        let ctx = this.ctx;
+        let w = this.canvas.width/2;
+        let h = this.canvas.height;
+        ctx.clearRect(w+1, 12+1, w-2*6-1, h-2*12-1);
+        ctx.fillRect(w+1, ym1-signal_ampl, w-2*8, 2*signal_ampl); //fill rectangle
 
         ctx.beginPath();
-        ctx.moveTo(canvas.width/2+12,ym1);
+        ctx.moveTo(w+12,ym1);
         for (let i = 0; i < buflen; i++) {
           isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
-          ctx.lineTo((i+canvas.width/2+10),ym1 - isign[i]); //draw the signal with noise
+          ctx.lineTo((i+w+10),ym1 - isign[i]); //draw the signal with noise
         }
         ctx.stroke();
       }
