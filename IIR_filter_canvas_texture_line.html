@@ -213,8 +213,41 @@ const aaa = {
 
         camera.add(this.cubes[i]);
       }
-  }  
+  },
+  drawCanvas:function(i,mode){//mode=0 uses bgcolor and mode !=0 uses bgcolor1
+    let canvas=this.canvas[i];
+    let ctx=this.ctx[i];
+    let strings=this.texts[i];
+    ctx.beginPath();
+    ctx.strokeStyle = this.fgcolor;//'gold';
+    if (mode==0){
+      ctx.fillStyle = this.bgcolor;//'#004444'; //'#333333'; //fill color
+    } else {
+      ctx.fillStyle = this.bgcolor1;//'#004444'; //'#333333'; //fill color
+    }
+
+    ctx.fillRect(1, 1, canvas.width-2*1, canvas.height-2*1); //fill rectangle
+    ctx.strokeRect(8, 8, canvas.width-2*8, canvas.height-2*8);
+    ctx.font = "40px Times";
+    ctx.fillStyle = this.fgcolor;//'#888844'; //fill color '#333333'
+    ctx.textAlign = "center";
+
+    let n;
+    if (strings.length%2==0) n=strings.length/2; else n=(strings.length-1)/2;
+    if (strings.length%2==0) {
+      for (let i=0; i<strings.length; i++)
+      ctx.fillText(strings[i], canvas.width/2, canvas.height/2+25+(i-n)*30);
+    }
+    else {
+      for (let i=0; i<strings.length; i++)
+      ctx.fillText(strings[i], canvas.width/2, canvas.height/2+10+(i-n)*30);
+    }
+    ctx.arc(canvas.width/2, canvas.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+    ctx.stroke();
+  }
 }
+//x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
+const menu = aaa.constructor(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signal','frequency,','Hz'],['Noise','level','%'],['IIR filter'],['ddddd','eee','fffff']],camera);
 
 
 /*
