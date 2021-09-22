@@ -287,7 +287,6 @@
       },
 
       drawSpectrum:function() {
-/*
         let canvas=this.canvas;
         let ctx=this.ctx;
 
@@ -323,9 +322,6 @@
           ctx.lineTo(canvas.width/2+11+i,ym-sp[i]/2);
         }
         ctx.stroke();
-
-        this.texture.needsUpdate=true;
-*/
       }
     }
 
@@ -381,27 +377,22 @@
         this.cube.position.y = y;
         this.cube.position.z = z;
       },
-//sh:0,
+
       drawSignal:function() {
-/*
+
         let canvas=this.canvas;
         let ctx=this.ctx;
         //ctx.beginPath();
         ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
         ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
 
-  ctx.beginPath();
+        ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym1);
-//this.sh = (this.sh+1)%100;
         for (let i = 0; i < buflen; i++) {
-//isign[i]=this.sh+isin[i];
           isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
           ctx.lineTo((i+canvas.width/2+10),ym1 - isign[i]); //draw the signal with noise
         }
         ctx.stroke();
-
-        this.texture.needsUpdate = true;//renew the texture when repainting the scene
-*/
       }
     }
 
@@ -568,9 +559,9 @@ document.onmousedown = function(e){
         camera.updateProjectionMatrix();
       }
 
-      displaySignalCube.drawSignal()
+      displaySignalCube.drawSignal();
       displaySpectrumCube.drawSpectrum()
-      displaySignalCube.texture.enndsUpdate=true;
+      displaySignalCube.texture.needsUpdate=true;
       displaySpectrumCube.texture.needsUpdate=true;
 /*
       cubes.forEach((cube, ndx) => {
