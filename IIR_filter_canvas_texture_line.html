@@ -288,6 +288,14 @@
 
       drawSpectrum:function() {
 
+        let canvas=this.canvas;
+        let ctx=this.ctx;
+        //ctx.beginPath();
+        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
+        ctx.fillStyle = this.bgcolor;
+        ctx.strokeStyle = this.fgcolor;
+        ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+/*
         for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics (first part)
           x[n]=0;
           y[n]=0;
@@ -305,14 +313,7 @@
           y[n]=-y[buflen-n];
           sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
         }
-        let canvas=this.canvas;
-        let ctx=this.ctx;
-        //ctx.beginPath();
-        ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
-        ctx.fillStyle = this.bgcolor;
-        ctx.strokeStyle = this.fgcolor;
-        ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
-/*
+
   ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym); //draw signal with noise spectrum
         ctx.lineTo(canvas.width/2+buflen,ym);
@@ -382,10 +383,11 @@
       drawSignal:function() {
         let canvas=this.canvas;
         let ctx=this.ctx;
+/*
         //ctx.beginPath();
         ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
         ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
-/*
+
   ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym1);
 //this.sh = (this.sh+1)%100;
@@ -395,7 +397,7 @@
           ctx.lineTo((i+canvas.width/2+10),ym1 - isign[i]); //draw the signal with noise
         }
         ctx.stroke();
-*/        
+*/
         this.texture.needsUpdate = true;//renew the texture when repainting the scene
       }
     }
