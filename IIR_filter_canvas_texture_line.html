@@ -312,6 +312,7 @@
         ctx.fillStyle = this.bgcolor;
         ctx.strokeStyle = this.fgcolor;
         ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+/*
   ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym); //draw signal with noise spectrum
         ctx.lineTo(canvas.width/2+buflen,ym);
@@ -320,6 +321,7 @@
           ctx.lineTo(canvas.width/2+11+i,ym-sp[i]/2);
         }
         ctx.stroke();
+*/
         this.texture.needsUpdate=true;
       }
     }
@@ -383,6 +385,7 @@
         //ctx.beginPath();
         ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
         ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+/*
   ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym1);
 //this.sh = (this.sh+1)%100;
@@ -392,6 +395,7 @@
           ctx.lineTo((i+canvas.width/2+10),ym1 - isign[i]); //draw the signal with noise
         }
         ctx.stroke();
+*/        
         this.texture.needsUpdate = true;//renew the texture when repainting the scene
       }
     }
