@@ -326,7 +326,6 @@
 
         this.texture.needsUpdate=true;
 */
-return this.texture;
       }
     }
 
@@ -403,7 +402,6 @@ return this.texture;
 
         this.texture.needsUpdate = true;//renew the texture when repainting the scene
 */
-return this.texture;
       }
     }
 
@@ -570,9 +568,10 @@ document.onmousedown = function(e){
         camera.updateProjectionMatrix();
       }
 
-      displaySignalCube.drawSignal().enndsUpdate=true;
-      displaySpectrumCube.drawSpectrum().needsUpdate=true;
-
+      displaySignalCube.drawSignal()
+      displaySpectrumCube.drawSpectrum()
+      displaySignalCube.texture.enndsUpdate=true;
+      displaySpectrumCube.texture.needsUpdate=true;
 /*
       cubes.forEach((cube, ndx) => {
         const speed = 0.2 + ndx * .00125;
