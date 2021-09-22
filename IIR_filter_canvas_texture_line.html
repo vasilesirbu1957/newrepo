@@ -150,17 +150,72 @@ function createCanvasTexture3() { //texture from a canvas
 //const texture3 = createCanvasTexture3();
 */
 
-class TvertCubesMenu {
-  constructor(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
-    this.texts=texts;
-    this.bgcolor=bgcolor;
-    this.fgcolor=fgcolor;
-    this.bgcolor1=bgcolor1;
-    this.previousSelectedCube=null;
-    this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
-  }
+const aaa = {
+  canvas:[],
+  ctx:[],
+  texts:[],
+  bgcolor:0x440044,
+  fgcolor:'gold',
+  textures:[],
+  cubes:[],
+  geometry:null,
+  materials:[],
+  tblrmaterial:null,
+  previousSelectedCube:null,
+  constructor:function(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
+      this.texts=texts;
+      this.bgcolor=bgcolor;
+      this.fgcolor=fgcolor;
+      this.bgcolor1=bgcolor1;
+      this.previousSelectedCube=null;
+      this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
 
+      let hh=(cyup-cydn)/this.texts.length;
+      let h=hh;
+      if (h>1) h=1;
+      for (let i=0; i<this.texts.length; i++)   {//create all textures
+        this.canvas[i] = document.createElement('canvas'); //create a canvas
+        this.ctx[i] = this.canvas[i].getContext('2d'); //create a canvas context
+        this.canvas[i].width = 256;   //canvas width
+        this.canvas[i].height = 256;  //canvas height
+        this.drawCanvas(i,0);
+        this.textures[i] = new THREE.CanvasTexture(this.canvas[i]);
+
+        this.geometry = new THREE.BoxGeometry(1, h, h);//width,height, deepth
+        this.materials[i] = new THREE.MeshPhongMaterial({map: this.textures[i]}); //make a material of the given texture
+        this.cubes[i] = new THREE.Mesh(this.geometry, [
+          this.materials[i],//Front texture
+          this.tblrmaterial, // top
+          this.tblrmaterial, // bottom
+          this.tblrmaterial,//left texture
+          this.materials[i],//front texture //back texture
+          this.tblrmaterial,//right texture
+        ]); //make a mesh (here - a cube) from the given materials and geometry
+
+        this.cubes[i].position.x=x;
+        this.cubes[i].position.y=cydn+h/2+i*hh;
+        this.cubes[i].position.z=z;
+
+        this.cubes[i].userData={
+          mod  : 0,
+          func : (mod)=>{this.drawCanvas(i,mod); this.cubes[i].userData.mod=mod; this.textures[i].needsUpdate=true;},
+
+          pointerDown : ()=>{
+            if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
+            if (this.cubes[i] != this.previousSelectedCube ) {
+              this.cubes[i].userData.selectTexture();
+              this.previousSelectedCube = this.cubes[i];
+            } else this.previousSelectedCube = null;
+          },
+          selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true;},
+          unselectTexture : ()=>{this.drawCanvas(i,0); this.textures[i].needsUpdate=true;},
+        };
+
+        camera.add(this.cubes[i]);
+      }
+  }  
 }
+
 
 /*
 class TvertCubesMenu {
