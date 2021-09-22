@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title> La multi ani! </title>
+
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+
+    <style>
+  	  body { margin: 0; }
+    </style>
+  </head>
+  <body>
+  <!-- the styles for this page in the local file main.css (in the /static/ directory mandatory!!!)-->
+  <!-- <link href="/static/css/main.css" rel="stylesheet" type="text/css"> -->
+<!--
+  <div>
+    <table style="width:100%">
+      <tr>
+        <th>
+          <img id='image01' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image02' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image03' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image04' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image05' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image06' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <video id='video1' crossOrigin = "Anonymous" autoplay muted loop src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/video1.mov' type="video/mp4" width="128" height="128">
+        </th>
+        <th>
+          <video id='video2' crossOrigin = "Anonymous" autoplay muted loop src='./video1.mov' type="video/mp4"  width="128" height="128">
+        </th>
+      </tr>
+    </table>
+  </div>
+  -->
+  <!-- the main.js module of our 3d application for this page -->
+
+  <script type="module" crossOrigin = "Anonymous" >
+
+  import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+  import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
+  import {createSkyboxFlowersScene} from 'https://raw.githack.com/vasilesirbu1957/newrepo/main/js/scenes.js';
+
+  function main() {
+    const canvas = document.querySelector('#myCanvas');
+    const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
+    renderer.physicallyCorrectLights = true;
+    renderer.setSize(window.innerWidth, window.innerWidth * 0.5); //square size width=100%, height=50% of width
+
+    //camera
+    const fov = 35;    // camera field of view in degrees
+    const aspect = 2;  // the canvas default aspect ratio
+    const near =0.1;  // the camera near distance (frustrum start)
+    const far = 60;    // the camera far distance (frustrum end)
+    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera.position.set(0, 0, -9);
+
+    // orbit controls  - rotate and zoom in/out
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, 0, 0); //move the scene up (to -0.5 on Y coord)
+    controls.update();
+    //limit zoom in and out when using THREE.OrbitControls with perspective camera:
+    controls.minDistance = 5.0;
+    controls.maxDistance = 60.0;
+    //limit zoom in and out when using THREE.OrbitControls with ortographic camera:
+    //controls.minZoom = 2.0;
+    //controls.maxZoom = 40.0;
+
+    const scene = createSkyboxFlowersScene(); //create a skybox scene
+    scene.add(camera);
+
+    // put the camera on a pole (parent it to an object)
+    // so we can spin the pole to move the camera around the scene
+    const cameraPole = new THREE.Object3D();
+    scene.add(cameraPole);
+    cameraPole.add(camera);
+/*
+function createHemisphereLight({skyColor,groundColor,intensity}){
+
+  const light = new THREE.HemisphereLight({skyColor:skyColor, groundColor:groundColor, intensity:intensity});
+  return light;
+}
+const light = createHemisphereLight({skyColor:0xFFFFFF,groundColor:0xB97A20,intensity:3});
+scene.add(light); //add this light to the scene
+*/
+    //hemisphere light to have light from everywhere
+    {
+      const skyColor = 0xFFFFFF;
+      const groundColor = 0xB97A20;  // brownish orange
+      const intensity = 3;
+      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+      scene.add(light); //add this light to the scene
+    }
+
+    //directional light to have light from the given direction
+    {
+      const color = 0xFFFFFF; //white color
+      const intensity = 3;    //light intensity
+      const light = new THREE.DirectionalLight(color, intensity);
+      light.position.set(0, 0, 5);
+      //scene.add(light); //add light to scene - when camera moves, the light remains at its position
+      camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
+    }
+
+  //  const video1 = document.getElementById( 'video1' );
+  //  const texture1 = new THREE.VideoTexture( video1 );
+
+const canvas1_height = 512; //canvas height
+const ym1 = canvas1_height/2;
+const canvas_height = 256; //canvas height
+const ym=canvas_height/2;
+const canvas_width = 1080;   //canvas width
+
+const signal_ampl = 80;//canvas_height/2-5-max_noise_ampl;
+const max_noise_ampl=2*signal_ampl;// 200%
+var noise_ampl=max_noise_ampl;//50;
+
+const isin=[];  //signal without noise
+const isign=[]; //signal with noise
+const buflen=512; //signal buffer length
+const fd=1024;  //sampling rate, Hz
+const f=16;//512; //signal frequency, Hz
+for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd); //fill the signal buffer without noise
+
+var canvas1 = document.createElement('canvas'); //create a canvas
+canvas1.width = canvas_width;   //canvas width
+canvas1.height = canvas1_height;  //canvas height
+var ctx1 = canvas1.getContext('2d'); //create a canvas context
+ctx1.fillStyle = '#440044'; //'#333333'; //fill color
+
+function drawSignal() {
+  ctx1.beginPath();
+  ctx1.clearRect(canvas1.width/2+1, 12+1, canvas1.width/2-2*6-1, canvas1_height-2*12-1);
+  //ctx1.clearRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
+  //ctx1.stroke();
+  //ctx1.fillStyle = '#440044';
+  ctx1.fillRect(canvas1.width/2+1, ym1-signal_ampl, canvas1.width/2-2*8, 2*signal_ampl); //fill rectangle
+  //ctx1.fillRect(1, ym1-signal_ampl, canvas1.width-2*1, 2*signal_ampl); //fill rectangle
+
+  ctx1.moveTo(canvas1.width/2+12,ym1);
+  for (let i = 0; i < buflen; i++) {
+    isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
+    ctx1.lineTo((i+canvas1.width/2+10),ym1 - isign[i]); //draw the signal with noise
+  }
+
+  /*
+  ctx1.moveTo(8,ym1);
+  for (let i = 0; i < 256; i++) {
+    isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);
+    ctx1.lineTo(4*(i+3),ym1 - isign[i]);
+  }
+  */
+  ctx1.stroke();
+}
+
+function createCanvasTexture1() { //texture from a canvas
+  ctx1.beginPath();
+  ctx1.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1_height-2*8);
+  ctx1.strokeRect(canvas1.width/2, 12, canvas1.width/2-2*6, canvas1_height-2*12);
+  ctx1.moveTo(canvas1.width/2-4,7);
+  ctx1.lineTo(canvas1.width/2-4,canvas1.height-8);
+  ctx1.stroke();
+  drawSignal();
+    /*
+    ctx1.font = "40px Times";
+    ctx1.fillStyle = '#888844'; //fill color
+    ctx1.textAlign = "center";
+    ctx1.fillText("La mulți", canvas1.width/2, canvas1.height/2-50);
+    ctx1.fillText("ani", canvas1.width/2, canvas1.height/2-20);
+    ctx1.fillText("scumpa și", canvas1.width/2, canvas1.height/2+10);
+    ctx1.fillText("iubita mea", canvas1.width/2, canvas1.height/2+40);
+    ctx1.fillText("soție!", canvas1.width/2, canvas1.height/2+70);
+
+    ctx1.beginPath();
+    ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+    ctx1.stroke();
+    */
+  const texture = new THREE.CanvasTexture(canvas1);
+  return texture;
+}
+const texture1 = createCanvasTexture1();
+
+var canvas2 = document.createElement('canvas'); //create a canvas
+canvas2.width = canvas_width;   //canvas width
+canvas2.height = canvas_height;  //canvas height
+var ctx2 = canvas2.getContext('2d'); //create a canvas context
+ctx2.fillStyle = '#440044'; //'#333333'; //fill color
+
+const x=[];
+const y=[];
+const sp=[];
+
+function drawSpectrum() {
+    /*
+    var angle;
+    for (let i = 0; i < 129; i++) {
+      angle=2*Math.PI*Math.random();
+      x[i]=50*Math.cos(angle);
+      y[i]=50*Math.sin(angle);
+    }
+    for (let i = 129; i < 256; i++) {
+      x[i]=x[256-i];
+      y[i]=-y[256-i];
+    }
+    for (let n = 0; n < 256; n++) {
+      noise[n]=0;
+      for (let i = 0; i < 129; i++) {
+        noise[n] = noise[n] + x[i]*Math.cos(2*Math.PI*i*n/256)-y[i]*Math.sin(2*Math.PI*i*n/256);
+      }
+      noise[n]=noise[n]/16;
+    }
+    */
+  for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics
+    x[n]=0;
+    y[n]=0;
+    for (let i = 0; i < buflen; i++) {
+      x[n] = x[n] + isign[i]*Math.cos(2*Math.PI*i*n/buflen);
+      y[n] = y[n] + isign[i]*Math.sin(2*Math.PI*i*n/buflen);
+    }
+    sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
+  }
+  for (let n = buflen/2+1; n < buflen; n++) {
+    x[n]=x[buflen-n];
+    y[n]=-y[buflen-n];
+    sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
+  }
+  /*
+  for (let n = 0; n < buflen; n++) { //calculate signal harmonics
+    x[n]=0;
+    y[n]=0;
+    for (let i = 0; i < buflen; i++) {
+      x[n] = x[n] + isign[i]*Math.cos(2*Math.PI*i*n/buflen);
+      y[n] = y[n] + isign[i]*Math.sin(2*Math.PI*i*n/buflen);
+    }
+    sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
+  }
+  */
+
+  ctx2.beginPath();
+  //ctx2.clearRect(0, 0, canvas2.width, canvas2.height); //fill rectangle
+  ctx2.clearRect(canvas2.width/2+1, 12+1, canvas2.width/2-2*6-1, canvas_height-2*12-1);
+  //ctx2.clearRect(canvas2.width/2+1, ym-signal_ampl, canvas2.width/2-2*8, 2*signal_ampl);
+  //ctx2.stroke();
+    //ctx1.fillStyle = '#440044';
+  ctx2.fillRect(canvas2.width/2+1, ym-signal_ampl, canvas2.width/2-2*8, 2*signal_ampl); //fill rectangle
+  //ctx2.fillRect(1, ym-signal_ampl, canvas2.width-2*1, 2*signal_ampl); //fill rectangle
+  //ctx2.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+  //ctx2.strokeRect(8, 8, canvas2.width-2*8, canvas_height-2*8);
+  ctx2.moveTo(canvas2.width/2+12,ym); //draw signal with noise spectrum
+  //ctx2.moveTo(11,ym);
+  ctx2.lineTo(canvas2.width/2+buflen,ym);
+  for (let i = 0; i < buflen; i++) {
+    ctx2.moveTo(canvas2.width/2+11+i,ym);
+    ctx2.lineTo(canvas2.width/2+11+i,ym-sp[i]/2);
+  }
+  ctx2.stroke();
+
+
+}
+
+function createCanvasTexture2() { //texture from a canvas
+  ctx2.beginPath();
+  ctx2.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+  ctx2.strokeRect(8, 8, canvas2.width-2*8, canvas_height-2*8);
+  ctx2.strokeRect(canvas2.width/2, 12, canvas2.width/2-2*6, canvas_height-2*12);
+  ctx2.moveTo(canvas2.width/2-4,7);
+  ctx2.lineTo(canvas2.width/2-4,canvas_height-8);
+  ctx2.stroke();
+
+  drawSpectrum();
+    /*
+    ctx1.font = "40px Times";
+    ctx1.fillStyle = '#888844'; //fill color
+    ctx1.textAlign = "center";
+    ctx1.fillText("La mulți", canvas1.width/2, canvas1.height/2-50);
+    ctx1.fillText("ani", canvas1.width/2, canvas1.height/2-20);
+    ctx1.fillText("scumpa și", canvas1.width/2, canvas1.height/2+10);
+    ctx1.fillText("iubita mea", canvas1.width/2, canvas1.height/2+40);
+    ctx1.fillText("soție!", canvas1.width/2, canvas1.height/2+70);
+
+    ctx1.beginPath();
+    ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+    ctx1.stroke();
+    */
+  const texture = new THREE.CanvasTexture(canvas2);
+  return texture;
+}
+const texture2 = createCanvasTexture2();
+
+
+/*
+    function createCanvasTexture2() { //texture from a canvas
+      var canvas1 = document.createElement('canvas'); //create a canvas
+      var ctx1 = canvas1.getContext('2d'); //create a canvas context
+      canvas1.width = 1024;   //canvas width
+      canvas1.height = 256;  //canvas height
+      ctx1.fillStyle = '#444400'; //'#333333'; //fill color
+      ctx1.fillRect(1, 1, canvas1.width-2*1, canvas1.height-2*1); //fill rectangle
+      ctx1.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+      ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
+      ctx1.font = "40px Times";
+      ctx1.fillStyle = '#888844'; //fill color
+      ctx1.textAlign = "center";
+
+      //ctx1.fillText("Cele mai", canvas1.width/2, canvas1.height/2-50);
+      //ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+      //ctx1.fillText("felicitări", canvas1.width/2, canvas1.height/2+10);
+      //ctx1.fillText("cu ziua", canvas1.width/2, canvas1.height/2+40);
+      //ctx1.fillText("de naștere!", canvas1.width/2, canvas1.height/2+70);
+
+      //ctx1.beginPath();
+      //ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+      //ctx1.stroke();
+
+      const texture = new THREE.CanvasTexture(canvas1);
+      return texture;
+    }
+const texture2 = createCanvasTexture2();
+*/
+function createCanvasTexture3() { //texture from a canvas
+  var canvas1 = document.createElement('canvas'); //create a canvas
+  var ctx1 = canvas1.getContext('2d'); //create a canvas context
+  canvas1.width = 1024;   //canvas width
+  canvas1.height = 256;  //canvas height
+  ctx1.fillStyle = '#004444'; //'#333333'; //fill color
+  ctx1.fillRect(1, 1, canvas1.width-2*1, canvas1.height-2*1); //fill rectangle
+  ctx1.strokeStyle = 'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
+  ctx1.font = "40px Times";
+  ctx1.fillStyle = '#888844'; //fill color '#333333'
+  ctx1.textAlign = "center";
+  /*
+  ctx1.fillText("Multă", canvas1.width/2, canvas1.height/2-50);
+  ctx1.fillText("sănătate,", canvas1.width/2, canvas1.height/2-20);
+  ctx1.fillText("bucurii", canvas1.width/2, canvas1.height/2+10);
+  ctx1.fillText("și zile", canvas1.width/2, canvas1.height/2+40);
+  ctx1.fillText("senine!", canvas1.width/2, canvas1.height/2+70);
+
+  ctx1.beginPath();
+  ctx1.arc(canvas1.width/2, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+  ctx1.stroke();
+  */
+  const texture = new THREE.CanvasTexture(canvas1);
+  return texture;
+}
+const texture3 = createCanvasTexture3();
+
+    //build a geometry
+    const boxWidth = 5;
+    const boxHeight = 1;
+    const boxDepth = 5;
+    const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+    const geometry1 = new THREE.BoxGeometry(boxWidth, boxHeight*2, boxDepth);
+
+    const cubesPole = new THREE.Object3D();
+    scene.add(cubesPole);
+
+    function makeCube(geometry, color, x, y, texture) {// make a cube using the geometry and color
+      //const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
+      //const material = new THREE.MeshPhongMaterial({map: texture1, overdraw: true }); //make a material of the given texture
+      const material = new THREE.MeshPhongMaterial({map: texture}); //make a material of the given texture
+
+      //const cube = new THREE.Mesh(geometry, material); //make a mesh (here - a cube) from the given material and geometry
+      const cube = new THREE.Mesh(geometry, [
+        material,//Front texture
+        material,//back texture
+        new THREE.MeshPhongMaterial({ color: 0x440044 }), // top
+        new THREE.MeshPhongMaterial({ color: 0x004444 }), // bottom
+        material,//left texture
+        material,//right texture
+      ]); //make a mesh (here - a cube) from the given materials and geometry
+
+      //scene.add(cube);
+      cubesPole.add(cube);
+      cube.position.x = x;
+      cube.position.y = y;
+
+      return cube;
+    }
+
+    const cubes = [ //create 3 cubes and add them to the scene
+      makeCube(geometry1, 0x44aa88,  0, 1.0, texture1),
+      makeCube(geometry, 0x8844aa,  0, -0.5, texture2),
+      makeCube(geometry, 0xaa8844,  0, -1.5, texture3),
+    ];
+
+    function resizeRendererToDisplaySize(renderer) {
+      const canvas = renderer.domElement;
+      const width = window.innerWidth; //canvas.clientWidth;
+      const height = window.innerWidth * 0.5; //canvas.clientHeight;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, true);
+      }
+      return needResize;
+    }
+
+    function render(time) { //render function rotates cubes and renderer displays them on screen
+      time *= 0.001;  // convert time to seconds
+
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+
+      drawSignal();
+      texture1.needsUpdate = true;
+      drawSpectrum();
+      texture2.needsUpdate = true;
+
+/*
+      cubes.forEach((cube, ndx) => {
+        const speed = 0.2 + ndx * .00125;
+        const rot = time * speed;
+        cube.rotation.x = rot;
+        cube.rotation.y = rot;
+      });
+
+      cameraPole.rotation.y = -time * 0.05; //rotate camera
+      cubesPole.rotation.y = -time * 0.15; //rotate c3 cubes
+*/
+      renderer.render(scene, camera); //renderer renders the given scene using given camera
+      requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
+    }
+
+    requestAnimationFrame(render); //requests the first frame using the render function
+
+  }
+
+  main();
+
+  </script>
+
+<!--
+  <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
+-->
+  <canvas id="myCanvas">  </canvas>
+
+</body>
+
+
+</html>
