@@ -251,7 +251,7 @@
         canvas.height = canvas_height;  //canvas height
         this.ctx = canvas.getContext('2d'); //create a canvas context
         let ctx=this.ctx;
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.font = "40px Times";
         ctx.strokeStyle = this.fgcolor;
         ctx.fillStyle = this.fgcolor;
@@ -261,6 +261,7 @@
 
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+  ctx.beginPath();
         ctx.moveTo(this.canvas.width/2-4,7);
         ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
         ctx.stroke();
@@ -306,11 +307,12 @@
         }
         let canvas=this.canvas;
         let ctx=this.ctx;
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas_height-2*12-1);
         ctx.fillStyle = this.bgcolor;
         ctx.strokeStyle = this.fgcolor;
         ctx.fillRect(canvas.width/2+1, ym-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+  ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym); //draw signal with noise spectrum
         ctx.lineTo(canvas.width/2+buflen,ym);
         for (let i = 0; i < buflen; i++) {
@@ -340,7 +342,7 @@
         canvas.height = canvas_height;  //canvas height
         this.ctx = canvas.getContext('2d'); //create a canvas context
         let ctx=this.ctx;
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.font = "40px Times";
         ctx.strokeStyle = this.fgcolor;
         ctx.fillStyle = this.fgcolor;
@@ -350,6 +352,7 @@
 
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
+  ctx.beginPath();
         ctx.moveTo(this.canvas.width/2-4,7);
         ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
         ctx.stroke();
@@ -377,9 +380,10 @@
       drawSignal:function() {
         let canvas=this.canvas;
         let ctx=this.ctx;
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.clearRect(canvas.width/2+1, 12+1, canvas.width/2-2*6-1, canvas.height-2*12-1);
         ctx.fillRect(canvas.width/2+1, ym1-signal_ampl, canvas.width/2-2*8, 2*signal_ampl); //fill rectangle
+  ctx.beginPath();
         ctx.moveTo(canvas.width/2+12,ym1);
 //this.sh = (this.sh+1)%100;
         for (let i = 0; i < buflen; i++) {
@@ -410,7 +414,7 @@
         this.ctx = canvas.getContext('2d'); //create a canvas context
         let ctx=this.ctx;
         this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = "40px Times";
@@ -424,7 +428,7 @@
         //ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
         //ctx.moveTo(this.canvas.width/2-4,7);
       //  ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
-        ctx.stroke();
+        //ctx.stroke();
         ctx.fillStyle = this.bgcolor;
         //this.drawSignal();
 
@@ -555,8 +559,8 @@ document.onmousedown = function(e){
         camera.updateProjectionMatrix();
       }
 
-//!!!!      displaySignalCube.drawSignal();
-//!!!!      displaySpectrumCube.drawSpectrum();
+      displaySignalCube.drawSignal();
+      displaySpectrumCube.drawSpectrum();
 
 /*
       cubes.forEach((cube, ndx) => {
