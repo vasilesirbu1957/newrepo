@@ -150,7 +150,19 @@ function createCanvasTexture3() { //texture from a canvas
 //const texture3 = createCanvasTexture3();
 */
 
+class TvertCubesMenu {
+  constructor(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
+    this.texts=texts;
+    this.bgcolor=bgcolor;
+    this.fgcolor=fgcolor;
+    this.bgcolor1=bgcolor1;
+    this.previousSelectedCube=null;
+    this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
+  }
 
+}
+
+/*
 class TvertCubesMenu {
   canvas=[];
   ctx=[];
@@ -250,6 +262,7 @@ class TvertCubesMenu {
   }
 
 }
+*/
 //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
 //const menu = new TvertCubesMenu(-3.6,2,-2,-7,'#004444','gold','#444400',[['Signal','frequency,','Hz'],['Noise','level','%'],['IIR filter'],['ddddd','eee','fffff']],camera);
 
