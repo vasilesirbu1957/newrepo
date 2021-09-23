@@ -282,11 +282,19 @@
           material,//left texture
           material,//right texture
         ]); //make a mesh (here - a cube) from the given materials and geometry
-        scene.add(this.cube);
-    //    cubesPole.add(cube);
+//        scene.add(this.cube);
+
         this.cube.position.x = x;
         this.cube.position.y = y;
         this.cube.position.z = z;
+
+        let geometry1 = new THREE.PlaneGeometry( 1, 1 );
+        let material1 = new THREE.MeshBasicMaterial( {map:this.texture} );
+        let plane = new THREE.Mesh( geometry1, material1 );
+        camera.add( plane );
+        plane.position.y=-0.6;
+        plane.position.z=-6;
+        plane.scale.set(4,1,1);
       },
 
       drawSpectrum:function() {
@@ -381,15 +389,23 @@
         this.cube.position.y = y;
         this.cube.position.z = z;
 
+        let geometry1 = new THREE.PlaneGeometry( 1, 1 );
+        let material1 = new THREE.MeshBasicMaterial( {map:this.texture} );
+        let plane = new THREE.Mesh( geometry1, material1 );
+        camera.add( plane );
+        plane.position.y=0.9;
+        plane.position.z=-6;
+        plane.scale.set(4,2,1);
 
+
+/*
         let material1 = new THREE.SpriteMaterial( { map: this.texture } );
-
         const sprite = new THREE.Sprite( material1 );
-
         scene.add( sprite );
         sprite.center.y=-1;
         sprite.scale.set(2,2,2);
         sprite.color='blue';
+*/
       },
 
       drawSignal:function() {
