@@ -332,6 +332,7 @@
       ctx:null,
       texture:null,
       cube:null,
+      material:null,
       constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
@@ -360,16 +361,16 @@
         ctx.fillStyle = this.bgcolor;
         this.drawSignal();
 
-        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        this.material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
         let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
         let geometry = new THREE.BoxGeometry(w, h, d);
         this.cube = new THREE.Mesh(geometry, [
-          material,//Front texture
-          material,//back texture
+          this.material,//Front texture
+          this.material,//back texture
           material0,//top material
           material0,// bottom
-          material,//left texture
-          material,//right texture
+          this.material,//left texture
+          this.material,//right texture
         ]); //make a mesh (here - a cube) from the given materials and geometry
         scene.add(this.cube);
     //    cubesPole.add(cube);
@@ -561,6 +562,7 @@ document.onmousedown = function(e){
       displaySignalCube.drawSignal();
       displaySpectrumCube.drawSpectrum()
       displaySignalCube.texture.needsUpdate=true;
+      displaySignalCube.material.needsUpdate=true;
       displaySpectrumCube.texture.needsUpdate=true;
 /*
       cubes.forEach((cube, ndx) => {
