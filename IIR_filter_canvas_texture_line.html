@@ -98,6 +98,9 @@
     //directional light to have light from the given direction
     const Dlight = createDirectionalLight({color:0xFFFFFF, intensity:3, x:0, y:0, z:5}, camera);
 
+    const fd=1024;  //sampling rate, Hz
+
+    const buflen=512; //signal buffer length
 
     const canvas1_height = 512; //canvas height
     const ym1 = canvas1_height/2;
@@ -111,8 +114,8 @@
 
     const isin=[];  //signal without noise
     const isign=[]; //signal with noise
-    const buflen=512; //signal buffer length
-    const fd=1024;  //sampling rate, Hz
+
+
     const f=16;//512; //signal frequency, Hz
     for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd); //fill the signal buffer without noise
 
@@ -314,7 +317,7 @@
           sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
         }
 
-  ctx.beginPath();
+        ctx.beginPath();
         ctx.moveTo(w+12,ym); //draw signal with noise spectrum
         ctx.lineTo(w+buflen,ym);
         for (let i = 0; i < buflen; i++) {
@@ -325,6 +328,8 @@
       }
     }
 
+
+
     const displaySignalCube = {
       bgcolor:0x440044,
       fgcolor:'gold',
@@ -332,7 +337,6 @@
       ctx:null,
       texture:null,
       cube:null,
-      material:null,
       constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,scene) {
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
@@ -354,29 +358,38 @@
 
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
-  ctx.beginPath();
+        ctx.beginPath();
         ctx.moveTo(this.canvas.width/2-4,7);
         ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
         ctx.stroke();
         ctx.fillStyle = this.bgcolor;
         this.drawSignal();
 
-        this.material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
         let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
         let geometry = new THREE.BoxGeometry(w, h, d);
         this.cube = new THREE.Mesh(geometry, [
-          this.material,//Front texture
-          this.material,//back texture
+          material,//Front texture
+          material,//back texture
           material0,//top material
           material0,// bottom
-          this.material,//left texture
-          this.material,//right texture
+          material,//left texture
+          material,//right texture
         ]); //make a mesh (here - a cube) from the given materials and geometry
-        scene.add(this.cube);
-    //    cubesPole.add(cube);
+//        scene.add(this.cube);
         this.cube.position.x = x;
         this.cube.position.y = y;
         this.cube.position.z = z;
+
+
+        let material1 = new THREE.SpriteMaterial( { map: this.texture } );
+
+        const sprite = new THREE.Sprite( material1 );
+
+        scene.add( sprite );
+        sprite.center.y=-1;
+        sprite.scale.set(2,2,2);
+        sprite.color='blue';
       },
 
       drawSignal:function() {
@@ -560,9 +573,8 @@ document.onmousedown = function(e){
       }
 
       displaySignalCube.drawSignal();
-      displaySpectrumCube.drawSpectrum()
       displaySignalCube.texture.needsUpdate=true;
-      displaySignalCube.material.needsUpdate=true;
+      displaySpectrumCube.drawSpectrum()
       displaySpectrumCube.texture.needsUpdate=true;
 /*
       cubes.forEach((cube, ndx) => {
