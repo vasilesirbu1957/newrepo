@@ -182,9 +182,12 @@
               if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
               if (this.cubes[i] != this.previousSelectedCube ) {
                 this.cubes[i].userData.selectTexture();
-                //adjustParameterValueCube.drawParameter(i);
+                adjustParameterValueCube.drawParameter(i);
                 this.previousSelectedCube = this.cubes[i];
-              } else this.previousSelectedCube = null;
+              } else {
+                this.previousSelectedCube = null;
+                adjustParameterValueCube.clear();
+              }
             },
             selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true;},
             unselectTexture : ()=>{this.drawCanvas(i,0); this.textures[i].needsUpdate=true;},
@@ -536,8 +539,14 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);
         ctx.fillStyle = this.fgcolor;
         let string = vertCubesMenu.texts[i].toString();
-        string=string.replaceAll(',',' ');
+        //string=string.replaceAll(',',' ');
         ctx.fillText(string, this.canvas.width/2, 50);
+        this.texture.needsUpdate=true;
+      },
+      clear(){
+        let ctx=this.ctx;
+        ctx.fillStyle = this.bgcolor;
+        ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);
         this.texture.needsUpdate=true;
       }
     }
