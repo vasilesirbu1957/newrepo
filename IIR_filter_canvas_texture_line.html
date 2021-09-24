@@ -182,7 +182,7 @@
               if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
               if (this.cubes[i] != this.previousSelectedCube ) {
                 this.cubes[i].userData.selectTexture();
-                adjustParameterValueCube.drawParameter(i);
+                //adjustParameterValueCube.drawParameter(i);
                 this.previousSelectedCube = this.cubes[i];
               } else this.previousSelectedCube = null;
             },
