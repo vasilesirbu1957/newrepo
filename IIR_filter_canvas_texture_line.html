@@ -621,7 +621,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         this.raycaster.setFromCamera(normalizedPosition, camera);  // cast a ray through the frustum
         // get the list of objects the ray intersected
         const intersectedObjects = this.raycaster.intersectObjects(camera.children);
-  //console.log('uv=',intersectedObjects[0].uv);
+  console.log('uv=',intersectedObjects[0].object);
         if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown(intersectedObjects[0].uv);
       }
     }
