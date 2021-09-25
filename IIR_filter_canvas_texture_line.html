@@ -124,11 +124,13 @@
     const sp=[];
 
     const vertCubesMenu = {
+      //texts:[],
+      //bgcolor:0x440044,
+      //fgcolor:'gold',
       canvas:[],
       ctx:[],
-      texts:[],
-      bgcolor:0x440044,
-      fgcolor:'gold',
+
+
       textures:[],
       cubes:[],
       geometry:null,
@@ -141,12 +143,14 @@
       z:0,
       dy:0,
       constructor:function(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
+        this.limits=null;
         this.texts=texts;
         this.bgcolor=bgcolor;
         this.fgcolor=fgcolor;
         this.bgcolor1=bgcolor1;
-        this.previousSelectedCube=null;
+
         this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
+        this.previousSelectedCube=null;
 
         let hh=(cyup-cydn)/this.texts.length;
         let h=hh;
@@ -178,7 +182,8 @@
             mod  : 0,
             func : (mod)=>{this.drawCanvas(i,mod); this.cubes[i].userData.mod=mod; this.textures[i].needsUpdate=true;},
 
-            pointerDown : ()=>{
+            pointerDown : (uv)=>{
+//console.log('point=',point);
               if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
               if (this.cubes[i] != this.previousSelectedCube ) {
                 this.cubes[i].userData.selectTexture();
@@ -239,8 +244,8 @@
     }
 
     //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
-    vertCubesMenu.constructor(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise','level, %'],['IIR filter'],['ddddd','eee','fffff']],camera);
-
+    vertCubesMenu.constructor(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level','%'],['IIR filter','units'],['ddddd','eee','fffff','units']],camera);
+    vertCubesMenu.setParamLimits([[0,10,50],[0,200,200],[5,8,10],[16,20,200]]);
 
 
     const sin2pii_buflen=[];
@@ -432,7 +437,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         let w = this.canvas.width;
         let h = this.canvas.height;
         ctx.clearRect(0, 0, w, h);
-ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
 
         ctx.beginPath();
@@ -447,8 +452,9 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
 
 
     const displayParameterValuesrect = {
-      bgcolor:0x440044,
-      fgcolor:'gold',
+      //fgcolor:'gold',
+      //bgcolor:0x440044,
+
       canvas:null,
       ctx:null,
       texture:null,
@@ -494,63 +500,102 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
 
 
     const adjustParameterValueCube = {
-      bgcolor:0x440044,
+      bgcolor:'#440044',
       fgcolor:'gold',
+      fgcolor1:'#440044',
       canvas:null,
       ctx:null,
       texture:null,
-      cube:null,
+      cubeindex:undefined,
+      plane:null,
+      boxwidth:0,
       constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+        this.cubeindex=undefined;
+
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
+        this.fgcolor1='#666600';
 
         this.canvas = document.createElement('canvas'); //create a canvas
         let canvas=this.canvas;
         canvas.width = canvas_width;   //canvas width
         canvas.height = canvas_height;  //canvas height
+
         this.ctx = canvas.getContext('2d'); //create a canvas context
         let ctx=this.ctx;
+
         this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
-        //ctx.beginPath();
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "40px Times";
         ctx.strokeStyle = this.fgcolor;
-        ctx.fillStyle = this.fgcolor;
-        ctx.textAlign = "center";
-        //ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
-        //ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
-
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
-        ctx.fillStyle = this.bgcolor;
+
+        ctx.font = "40px Times";
 
         let geometry1 = new THREE.PlaneGeometry( w, h );
+        this.boxwidth=w;
         let material1 = new THREE.MeshPhongMaterial( {map:this.texture} );
         let plane = new THREE.Mesh( geometry1, material1 );
         camera.add( plane );
         plane.position.x=x;
         plane.position.y=y;
         plane.position.z=z;
+        this.plane=plane;
+
+        plane.userData={
+          pointerDown : (uv)=>{
+          //console.log('point=',point);
+          if (this.cubeindex !== undefined) {
+            let lim=vertCubesMenu.limits[this.cubeindex];
+            lim[1]=lim[0]+(lim[2]-lim[0])*uv.x;
+    console.log('pointewrDown lim=',lim,' uv.x=',uv.x);
+            vertCubesMenu.limits[this.cubeindex]=lim;
+            this.drawParameter(this.cubeindex);
+//console.log('parameter index=',this.cubeindex,'this.canvas.getBoundingClientRect()=', this.canvas.getBoundingClientRect());
+            } else console.log('parameter not selected!!!');
+          },
+        }
+
       },
 
       drawParameter(i){
+        this.cubeindex=i;//selected parameted has index i
+//console.log('enter drawParameter');
+
         let ctx=this.ctx;
         ctx.fillStyle = this.bgcolor;
-        ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);
-        ctx.fillStyle = this.fgcolor;
-
-let strings = vertCubesMenu.texts[i];
-let s='';
+        ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);//clear the inside rectangular zone;
+        let strings = vertCubesMenu.texts[i];
+        let s='';
         strings.forEach((string, ndx) => {
           s=s+' '+string;
         });
-        //let string = vertCubesMenu.texts[i].toString();
-        //string=string.replaceAll(',',' ');
+        ctx.textAlign = "center";
+        ctx.fillStyle = this.fgcolor;
+        ctx.fillText(s, this.canvas.width/2, 50); //output parameter name on the rectangle
 
-        ctx.fillText(s, this.canvas.width/2, 50);
+        let lim=vertCubesMenu.limits[i];
+  console.log('i=',i,'vertCubesMenu.limits[i]=',vertCubesMenu.limits[i]);
+        ctx.fillStyle = this.fgcolor1;
+        ctx.textAlign = "left";
+        ctx.fillText(lim[0], 11, 50+40); //output minimal value
+        ctx.textAlign = "right";
+        ctx.fillText(lim[2], this.canvas.width-11, 50+40);//output maximal value
+
+        ctx.fillStyle = this.fgcolor;
+        let x=(this.canvas.width-2*8-4)*(lim[1]-lim[0])/(lim[2]-lim[0]);
+console.log('x=',x,' lim=',lim);
+        x=Math.round(x);
+        ctx.fillRect(8+2, 100, x, this.canvas.height-2*8-50-100);
+        if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
+        else ctx.textAlign = "right";
+        ctx.fillText(Math.round(lim[1]), x+8, this.canvas.height-20);
+
         this.texture.needsUpdate=true;
       },
       clear(){
+        this.cubeindex=undefined; //parameter not selected
+
         let ctx=this.ctx;
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);
@@ -576,7 +621,8 @@ let s='';
         this.raycaster.setFromCamera(normalizedPosition, camera);  // cast a ray through the frustum
         // get the list of objects the ray intersected
         const intersectedObjects = this.raycaster.intersectObjects(camera.children);
-        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown();
+  //console.log('uv=',intersectedObjects[0].uv);
+        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown(intersectedObjects[0].uv);
       }
     }
 
@@ -624,8 +670,7 @@ document.onmousedown = function(e){
     window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
       setPickPosition(event);
       pickHelper.pick(pickPosition, scene, camera/*, time*/);
- console.log('pointerdown',event.pageX,' ',event.pageY);
-      //clearPickPosition();
+ //console.log('pointerdown',event.pageX,' ',event.pageY,'pickPosition=',pickPosition);
     });
 
 
@@ -655,7 +700,7 @@ document.onmousedown = function(e){
 
 //    controls.addEventListener('change', (event) => {console.log('change'); });
     controls.addEventListener('start', (event) => {
-      console.log("Controls Start Event", event)
+      //console.log("Controls Start Event", event)
     });
 //    controls.addEventListener('end', (event) => console.log("Controls End Event"));
 
