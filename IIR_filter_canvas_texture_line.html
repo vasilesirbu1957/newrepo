@@ -116,7 +116,7 @@
     const isign=[]; //signal with noise
 
 
-    const f=16;//512; //signal frequency, Hz
+    var f=16;//512; //signal frequency, Hz
     for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd); //fill the signal buffer without noise
 
     const x=[];
@@ -548,8 +548,22 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
           if (this.cubeindex !== undefined) {
             let lim=vertCubesMenu.limits[this.cubeindex];
             lim[1]=lim[0]+(lim[2]-lim[0])*uv.x;
-    console.log('pointewrDown lim=',lim,' uv.x=',uv.x);
             vertCubesMenu.limits[this.cubeindex]=lim;
+
+            console.log('pointewrDown lim=',lim,' uv.x=',uv.x);
+            switch(this.cubeindex) {
+              case 0:
+                f=fd*lim[1]/100;
+                //console.log('f=',f);
+                for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd);
+                break;
+              case 1:
+                noise_ampl=signal_ampl*lim[1]/100;
+                // code block
+                break;
+              default:
+                // code block
+            }
             this.drawParameter(this.cubeindex);
 //console.log('parameter index=',this.cubeindex,'this.canvas.getBoundingClientRect()=', this.canvas.getBoundingClientRect());
             } else console.log('parameter not selected!!!');
