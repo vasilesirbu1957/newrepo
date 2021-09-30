@@ -98,7 +98,119 @@
     //directional light to have light from the given direction
     const Dlight = createDirectionalLight({color:0xFFFFFF, intensity:3, x:0, y:0, z:5}, camera);
 
-    const fd=1024;  //sampling rate, Hz
+function getpolepair(fc,lh,pr,np,p){
+  //fc the cutoff frequency in range 0 - 0.5 of sampling frequency; for a cutoff frequency of 0.1*sf  just enter fc=0.1
+  //lh indicates the filter type: lh=0 low pass filter, lh=1 - high pass filter
+  //pr indicates the percent ripple in range 0-29 that corresponds to 9-29% ripple in the passband
+  //np the number of poles (even number from 2 to 20)
+  //p is the poles pair number from 0 to np/2
+console.log('inside getpolepair');
+  let c={a0:0,a1:0,a2:0,b1:0,b2:0};// the the coefficients for the current poles pair will be kept here
+  let rp,ip;//real and imaginary parts of poles
+  let es,vx,kx,t,w,m,d,k;
+  let x0,x1,x2,y1,y2;
+  //calculate the pole pair location on the unit circle
+  rp=-Math.cos(Math.PI/(2*np)+(p-1)*Math.PI/np);//the pole real part on the unit circle
+  ip= Math.sin(Math.PI/(2*np)+(p-1)*Math.PI/np);//the pole imaginary part
+
+  if (pr>0){//if ripple is allowed then warp from the unit circle to an ellipse
+    es=Math.sqrt((100/(100-pr))**2-1);
+    vx=(1/np)*Math.log((1/es)+Math.sqrt((1/es)**2+1));
+    kx=(1/np)*Math.log((1/es)+Math.sqrt((1/es)**2-1));
+    kx=(Math.exp(kx)+Math.exp(-kx))/2;
+    rp=rp*((Math.exp(vx)-Math.exp(-vx))/2)/kx;
+    ip=ip*((Math.exp(vx)+Math.exp(-vx))/2)/kx;
+  }
+console.log('----rp=',rp,'ip=',ip);
+  //s-domain to z-domain conversion
+  t=2*Math.tan(0.5);
+  w=2*Math.PI*fc;
+  m=rp**2+ip**2;//(pole module)**2;
+  d=4-4*rp*t+m*t**2;
+  x0=(t**2)/d;
+  x1=2*(t**2)/d;
+  x2=(t**2)/d;
+  y1=(8-2*m*t**2)/d;
+  y2=(-4-4*rp*t-m*t**2)/d;
+console.log('t=',t,'w=',w,'m=',m,'d=',d,'x0=',x0,'x1=',x1,'x2=',x2,'y1=',y1,'y2=',y2);
+  //Lowpass to lopass or lowpass to highpass transform
+  if (lh==1) {k=-Math.cos(w/2+1/2)/Math.cos(w/2-1/2)}
+  else if (lh==0) {k=Math.sin(1/2-w/2)/Math.sin(1/2+w/2)};
+  d=1+y1*k-y2*k**2;
+  c.a0=(x0-x1*k+x2*k**2)/d;
+  c.a1=(-2*x0*k+x1+x1*k**2-2*x2*k)/d;
+  c.a2=(x0*k**2-x1*k+x2)/d;
+  c.b1=(2*k+y1+y1*k**2-2*y2*k)/d;
+  c.b2=(-(k**2)-y1*k+y2)/d;
+  if (lh==1){
+    c.a1=-c.a1;
+    c.b1=-c.b1;
+  }
+
+console.log('c=',c);
+console.log('exit getpolepair');
+  return c;
+}
+
+
+
+function chebyshev1IIR(fc,lh,pr,np){
+  //fc - cutoff frequency 0.0-0.5;
+  //lh=0 low pass filter, lh=1 - high pass filter
+  //pr - percent ripple 0-29
+  //np - number of poles (even number from 2 to 20)
+
+  let a=[]; //a[0] ,...a[21] coefficients
+  let b=[]; //b[1] ,...b[21] coefficients
+  let ta=[]; //0-21
+  let tb=[]; //0-21
+  for (let i=0; i<23; i++) {
+    a[i]=0;
+    b[i]=0;
+  }
+  a[2]=1;
+  b[2]=1;
+  let c={a0:0,a2:0,a2:0,b1:0,b2:0};
+  for (let p=1; p<np/2+1; p++){//loop for each pole pair
+    c=getpolepair(fc,lh,pr,np,p);
+console.log('c=',c);
+    for (let i=0;i<23;i++){
+      ta[i]=a[i];
+      tb[i]=b[i];
+    }
+
+    for (let i=2;i<23;i++){
+      a[i]=c.a0*ta[i]+c.a1*ta[i-1]+c.a2*ta[i-2];
+      b[i]=tb[i]-c.b1*tb[i-1]-c.b2*tb[i-2];
+    }
+  }
+  b[2]=0;
+  for (let i=0;i<21;i++) {//shifting the coefficients
+    a[i]=a[i+2];
+    b[i]=b[i+2];
+  }
+  let sa=0; //normalize the gain
+  let sb=0;
+  for (let i=0; i<21; i++) {
+    if (lh==0) { //low pass
+      sa=sa+a[i];
+      sb=sb+b[i];
+    } else if (lh==1){//high pass
+      sa=sa+a[i]*(-1)**i;
+      sb=sb+b[i]*(-1)**i;
+    }
+  }
+  let gain=sa/(1-sb);
+  for(let i=0;i<21;i++){
+    a[i]=a[i]/gain;
+  }
+console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
+}
+
+
+
+
+    const fd=512;//1024;  //sampling rate, Hz
 
     const buflen=512; //signal buffer length
 
@@ -116,7 +228,7 @@
     const isign=[]; //signal with noise
 
 
-    var f=16;//512; //signal frequency, Hz
+    var f=(5/100)*fd; //signal frequency, Hz
     for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd); //fill the signal buffer without noise
 
     const x=[];
@@ -245,7 +357,7 @@
 
     //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
     vertCubesMenu.constructor(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level','%'],['IIR filter','units'],['ddddd','eee','fffff','units']],camera);
-    vertCubesMenu.setParamLimits([[0,10,50],[0,200,200],[5,8,10],[16,20,200]]);
+    vertCubesMenu.setParamLimits([[0,5,50],[0,200,200],[5,8,10],[16,20,200]]);
 
 
     const sin2pii_buflen=[];
@@ -366,7 +478,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       ctx:null,
       texture:null,
       cube:null,
-      constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+      constructor:function (w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
 
@@ -450,7 +562,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       }
     }
 
-
+/*
     const displayParameterValuesrect = {
       //fgcolor:'gold',
       //bgcolor:0x440044,
@@ -481,10 +593,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
 
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
-        //ctx.strokeRect(this.canvas.width/2, 12, this.canvas.width/2-2*6, this.canvas.height-2*12);
-        //ctx.moveTo(this.canvas.width/2-4,7);
-      //  ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
-        //ctx.stroke();
+
         ctx.fillStyle = this.bgcolor;
 
         let geometry1 = new THREE.PlaneGeometry( w, h );
@@ -496,8 +605,43 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         plane.position.z=z;
       }
     }
+*/
+class tdisplayParameterValuesrect {
 
+  constructor (w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+    this.fgcolor=fgcolor;
+    this.bgcolor=bgcolor;
 
+    this.canvas = document.createElement('canvas'); //create a canvas
+    let canvas=this.canvas;
+    canvas.width = canvas_width;   //canvas width
+    canvas.height = canvas_height;  //canvas height
+    this.ctx = canvas.getContext('2d'); //create a canvas context
+    let ctx=this.ctx;
+    this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+    //ctx.beginPath();
+    ctx.fillStyle = this.bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "40px Times";
+    ctx.strokeStyle = this.fgcolor;
+    ctx.fillStyle = this.fgcolor;
+    ctx.textAlign = "left";
+    ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
+    ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
+
+    ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+
+    ctx.fillStyle = this.bgcolor;
+
+    let geometry1 = new THREE.PlaneGeometry( w, h );
+    let material1 = new THREE.MeshPhongMaterial( {map:this.texture} );
+    let plane = new THREE.Mesh( geometry1, material1 );
+    camera.add( plane );
+    plane.position.x=x;
+    plane.position.y=y;
+    plane.position.z=z;
+  }
+}
 
     const adjustParameterValueCube = {
       bgcolor:'#440044',
@@ -509,7 +653,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       cubeindex:undefined,
       plane:null,
       boxwidth:0,
-      constructor:function (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+      constructor:function (w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.cubeindex=undefined;
 
         this.fgcolor=fgcolor;
@@ -518,7 +662,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
 
         this.canvas = document.createElement('canvas'); //create a canvas
         let canvas=this.canvas;
-        canvas.width = canvas_width;   //canvas width
+        canvas.width = canvas_width*2;
         canvas.height = canvas_height;  //canvas height
 
         this.ctx = canvas.getContext('2d'); //create a canvas context
@@ -556,9 +700,11 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
                 f=fd*lim[1]/100;
                 //console.log('f=',f);
                 for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd);
+        //getpolepair(0.1,1,10,4,2);//getpolepair(0.1,0,0,4,1);//getpolepair(fc,lh,pr,np,p)
+        chebyshev1IIR(0.01,0,0.5,2);//chebyshev1IIR(fc,lh,pr,np);
                 break;
               case 1:
-                noise_ampl=signal_ampl*lim[1]/100; 
+                noise_ampl=signal_ampl*lim[1]/100;
                 // code block
                 break;
               default:
@@ -600,10 +746,11 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         let x=(this.canvas.width-2*8-4)*(lim[1]-lim[0])/(lim[2]-lim[0]);
 //console.log('x=',x,' lim=',lim);
         x=Math.round(x);
+//console.log('x=',x);
         ctx.fillRect(8+2, 100, x, this.canvas.height-2*8-50-100);
         if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
         else ctx.textAlign = "right";
-        ctx.fillText(Math.round(lim[1]), x+8, this.canvas.height-20);
+        ctx.fillText(Math.round(lim[1]*10)/10, x+8, this.canvas.height-20);
 
         this.texture.needsUpdate=true;
       },
@@ -617,12 +764,13 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       }
     }
 
-    displaySignalCube.constructor(boxWidth, boxHeight*2, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
-    displayParameterValuesrect.constructor(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
+    displaySignalCube.constructor(boxWidth, boxHeight*2, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
+  //  displayParameterValuesrect.constructor(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
+  const displayParameterValuesrect = new tdisplayParameterValuesrect(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
 
     displaySpectrumCube.constructor(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
   //w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
-    adjustParameterValueCube.constructor(boxWidth, boxHeight, boxDepth,vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-6*vertCubesMenu.dy/2, vertCubesMenu.z,'#004444','gold',canvas_width,canvas_height,camera);
+    adjustParameterValueCube.constructor(boxWidth*2, boxHeight, vertCubesMenu.x+vertCubesMenu.dy + 3*boxWidth/2, vertCubesMenu.y-6*vertCubesMenu.dy/2, vertCubesMenu.z,'#004444','gold',canvas_width,canvas_height,camera);
 
 
     class PickHelper {
