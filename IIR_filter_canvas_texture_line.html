@@ -235,31 +235,23 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
     const y=[];
     const sp=[];
 
-    const vertCubesMenu = {
-      //texts:[],
-      //bgcolor:0x440044,
-      //fgcolor:'gold',
-      canvas:[],
-      ctx:[],
+    class tvertCubesMenu {
 
-
-      textures:[],
-      cubes:[],
-      geometry:null,
-      materials:[],
-      tblrmaterial:null,
-      previousSelectedCube:null,
-      limits:[],
-      x:0,
-      y:0,
-      z:0,
-      dy:0,
-      constructor:function(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
+      constructor(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
         this.limits=null;
         this.texts=texts;
         this.bgcolor=bgcolor;
         this.fgcolor=fgcolor;
         this.bgcolor1=bgcolor1;
+        this.canvas = [];
+        this.ctx = [];
+        this.textures = [];
+        this.materials = [];
+        this.cubes = [];
+        this.x=0;
+        this.y=0;
+        this.z=0;
+        this.dy=0;
 
         this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
         this.previousSelectedCube=null;
@@ -274,7 +266,7 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
           this.canvas[i].height = 256;  //canvas height
           this.drawCanvas(i,0);
           this.textures[i] = new THREE.CanvasTexture(this.canvas[i]);
-
+          this.previousSelectedCube=null;
           this.geometry = new THREE.BoxGeometry(1, h, h);//boxwidth,boxheight, boxdeepth
           this.materials[i] = new THREE.MeshPhongMaterial({map: this.textures[i]}); //make a material of the given texture
           this.cubes[i] = new THREE.Mesh(this.geometry, [
@@ -299,11 +291,11 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
               if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
               if (this.cubes[i] != this.previousSelectedCube ) {
                 this.cubes[i].userData.selectTexture();
-                adjustParameterValueCube.drawParameter(i);
+                adjustParameterValueRect.drawParameter(i);
                 this.previousSelectedCube = this.cubes[i];
               } else {
                 this.previousSelectedCube = null;
-                adjustParameterValueCube.clear();
+                adjustParameterValueRect.clear();
               }
             },
             selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true;},
@@ -316,13 +308,13 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
         this.z=this.cubes[this.texts.length-1].position.z;
         this.y=this.cubes[this.texts.length-1].position.y;
         this.dy=hh;
-      },
+      }
 
       setParamLimits(limits){
         this.limits=limits; //[vmin,v,vmax,dv,units],...,[vmin,v,vmax,dv,units]
-      },
+      }
 
-      drawCanvas:function(i,mode){//mode=0 uses bgcolor and mode !=0 uses bgcolor1
+      drawCanvas(i,mode){//mode=0 uses bgcolor and mode !=0 uses bgcolor1
         let canvas=this.canvas[i];
         let ctx=this.ctx[i];
         let strings=this.texts[i];
@@ -356,7 +348,7 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
     }
 
     //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
-    vertCubesMenu.constructor(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level','%'],['IIR filter','units'],['ddddd','eee','fffff','units']],camera);
+    const vertCubesMenu = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level','%'],['IIR filter','units'],['ddddd','eee','fffff','units']],camera);
     vertCubesMenu.setParamLimits([[0,5,50],[0,200,200],[5,8,10],[16,20,200]]);
 
 
