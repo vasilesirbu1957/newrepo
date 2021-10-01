@@ -373,7 +373,7 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
     const boxDepth = 2.5;
 
 
-    class tdisplaySpectrumCube {
+    class tdisplaySpectrumRect {
 /*
       bgcolor:0x440044,
       fgcolor:'gold',
@@ -473,14 +473,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       }
     }
 
-    class tdisplaySignalCube {
-/*
-      bgcolor:0x440044,
-      fgcolor:'gold',
-      canvas:null,
-      ctx:null,
-      texture:null,
-  */
+    class tdisplaySignalRect {
       constructor(w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
@@ -601,7 +594,7 @@ class tdisplayParameterValuesrect {
   }
 }
 
-    class tadjustParameterValueCube {
+    class tadjustParameterValueRect {
 
       constructor(w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.cubeindex=undefined;
@@ -712,13 +705,11 @@ class tdisplayParameterValuesrect {
       }
     }
 
-    const displaySignalCube = new tdisplaySignalCube(boxWidth, boxHeight*2, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
-  //  displayParameterValuesrect.constructor(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
+    const displaySignalRect = new tdisplaySignalRect(boxWidth, boxHeight*2, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
     const displayParameterValuesrect = new tdisplayParameterValuesrect(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
-
-    const displaySpectrumCube = new tdisplaySpectrumCube(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    const displaySpectrumRect = new tdisplaySpectrumRect(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
   //w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
-    const adjustParameterValueCube = new tadjustParameterValueCube(boxWidth*2, boxHeight, vertCubesMenu.x+vertCubesMenu.dy + 3*boxWidth/2, vertCubesMenu.y-6*vertCubesMenu.dy/2, vertCubesMenu.z,'#004444','gold',canvas_width,canvas_height,camera);
+    const adjustParameterValueRect = new tadjustParameterValueRect(boxWidth*2, boxHeight, vertCubesMenu.x+vertCubesMenu.dy + 3*boxWidth/2, vertCubesMenu.y-6*vertCubesMenu.dy/2, vertCubesMenu.z,'#004444','gold',canvas_width,canvas_height,camera);
 
 
     class PickHelper {
@@ -823,10 +814,10 @@ document.onmousedown = function(e){
         camera.updateProjectionMatrix();
       }
 
-      displaySignalCube.drawSignal();
-      displaySignalCube.texture.needsUpdate=true;
-      displaySpectrumCube.drawSpectrum()
-      displaySpectrumCube.texture.needsUpdate=true;
+      displaySignalRect.drawSignal();
+      displaySignalRect.texture.needsUpdate=true;
+      displaySpectrumRect.drawSpectrum()
+      displaySpectrumRect.texture.needsUpdate=true;
 /*
       cubes.forEach((cube, ndx) => {
         const speed = 0.2 + ndx * .00125;
