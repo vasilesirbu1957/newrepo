@@ -373,14 +373,16 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
     const boxDepth = 2.5;
 
 
-    const displaySpectrumCube = {
+    class tdisplaySpectrumCube {
+/*
       bgcolor:0x440044,
       fgcolor:'gold',
       canvas:null,
       ctx:null,
       texture:null,
       cube:null,
-      constructor:function(w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+*/
+      constructor (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
 
@@ -432,9 +434,9 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
         plane.position.x=x;
         plane.position.y=y;
         plane.position.z=z;
-      },
+      }
 
-      drawSpectrum:function() {
+      drawSpectrum () {
         let ctx=this.ctx;
         let w = this.canvas.width;
 
@@ -600,29 +602,16 @@ class tdisplayParameterValuesrect {
 }
 
     class tadjustParameterValueCube {
-/*
-      bgcolor:'#440044',
-      fgcolor:'gold',
-      fgcolor1:'#440044',
-      canvas:null,
-      ctx:null,
-      texture:null,
-      cubeindex:undefined,
-      plane:null,
-      boxwidth:0,
-*/
+
       constructor(w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.cubeindex=undefined;
-
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
         this.fgcolor1='#666600';
-
         this.canvas = document.createElement('canvas'); //create a canvas
         let canvas=this.canvas;
         canvas.width = canvas_width*2;
         canvas.height = canvas_height;  //canvas height
-
         this.ctx = canvas.getContext('2d'); //create a canvas context
         let ctx=this.ctx;
 
@@ -727,7 +716,7 @@ class tdisplayParameterValuesrect {
   //  displayParameterValuesrect.constructor(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
     const displayParameterValuesrect = new tdisplayParameterValuesrect(boxWidth,boxHeight*2,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
 
-    displaySpectrumCube.constructor(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    const displaySpectrumCube = new tdisplaySpectrumCube(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
   //w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
     const adjustParameterValueCube = new tadjustParameterValueCube(boxWidth*2, boxHeight, vertCubesMenu.x+vertCubesMenu.dy + 3*boxWidth/2, vertCubesMenu.y-6*vertCubesMenu.dy/2, vertCubesMenu.z,'#004444','gold',canvas_width,canvas_height,camera);
 
