@@ -104,8 +104,8 @@ function getpolepair(fc,lh,pr,np,p){
   //pr indicates the percent ripple in range 0-29 that corresponds to 9-29% ripple in the passband
   //np the number of poles (even number from 2 to 20)
   //p is the poles pair number from 0 to np/2
-console.log('inside getpolepair');
-  let c={a0:0,a1:0,a2:0,b1:0,b2:0};// the the coefficients for the current poles pair will be kept here
+//console.log('inside getpolepair');
+  let c={a0:0,a1:0,a2:0,b1:0,b2:0};// the coefficients for the current poles pair will be kept here
   let rp,ip;//real and imaginary parts of poles
   let es,vx,kx,t,w,m,d,k;
   let x0,x1,x2,y1,y2;
@@ -121,7 +121,7 @@ console.log('inside getpolepair');
     rp=rp*((Math.exp(vx)-Math.exp(-vx))/2)/kx;
     ip=ip*((Math.exp(vx)+Math.exp(-vx))/2)/kx;
   }
-console.log('----rp=',rp,'ip=',ip);
+//console.log('----rp=',rp,'ip=',ip);
   //s-domain to z-domain conversion
   t=2*Math.tan(0.5);
   w=2*Math.PI*fc;
@@ -132,7 +132,7 @@ console.log('----rp=',rp,'ip=',ip);
   x2=(t**2)/d;
   y1=(8-2*m*t**2)/d;
   y2=(-4-4*rp*t-m*t**2)/d;
-console.log('t=',t,'w=',w,'m=',m,'d=',d,'x0=',x0,'x1=',x1,'x2=',x2,'y1=',y1,'y2=',y2);
+//console.log('t=',t,'w=',w,'m=',m,'d=',d,'x0=',x0,'x1=',x1,'x2=',x2,'y1=',y1,'y2=',y2);
   //Lowpass to lopass or lowpass to highpass transform
   if (lh==1) {k=-Math.cos(w/2+1/2)/Math.cos(w/2-1/2)}
   else if (lh==0) {k=Math.sin(1/2-w/2)/Math.sin(1/2+w/2)};
@@ -146,19 +146,19 @@ console.log('t=',t,'w=',w,'m=',m,'d=',d,'x0=',x0,'x1=',x1,'x2=',x2,'y1=',y1,'y2=
     c.a1=-c.a1;
     c.b1=-c.b1;
   }
-
-console.log('c=',c);
-console.log('exit getpolepair');
+//console.log('c=',c);
+//console.log('exit getpolepair');
   return c;
 }
 
-
+let printcoeff=1;
 
 function chebyshev1IIR(fc,lh,pr,np){
   //fc - cutoff frequency 0.0-0.5;
   //lh=0 low pass filter, lh=1 - high pass filter
   //pr - percent ripple 0-29
   //np - number of poles (even number from 2 to 20)
+if (printcoeff) console.log('------------fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
 
   let a=[]; //a[0] ,...a[21] coefficients
   let b=[]; //b[1] ,...b[21] coefficients
@@ -170,17 +170,18 @@ function chebyshev1IIR(fc,lh,pr,np){
   }
   a[2]=1;
   b[2]=1;
-  let c={a0:0,a2:0,a2:0,b1:0,b2:0};
+  //let c={a0:0,a2:0,a2:0,b1:0,b2:0};
   for (let p=1; p<np/2+1; p++){//loop for each pole pair
-    c=getpolepair(fc,lh,pr,np,p);
-console.log('c=',c);
+    let c = getpolepair(fc,lh,pr,np,p);
+//console.log('c=',c);
     for (let i=0;i<23;i++){
       ta[i]=a[i];
       tb[i]=b[i];
     }
     for (let i=2;i<23;i++){
       a[i]=c.a0*ta[i]+c.a1*ta[i-1]+c.a2*ta[i-2];
-      b[i]=tb[i]+c.b1*tb[i-1]+c.b2*tb[i-2];//b[i]=tb[i]-c.b1*tb[i-1]-c.b2*tb[i-2];
+      b[i]=tb[i]-c.b1*tb[i-1]-c.b2*tb[i-2];
+      //b[i]=tb[i]+c.b1*tb[i-1]+c.b2*tb[i-2];//b[i]=tb[i]-c.b1*tb[i-1]-c.b2*tb[i-2];
     }
   }
   b[2]=0;
@@ -199,11 +200,12 @@ console.log('c=',c);
       sb=sb+b[i]*(-1)**i;
     }
   }
-  let gain=sa/(1-sb);
+  let gain=sa/(1+sb);//let gain=sa/(1-sb);
   for(let i=0;i<21;i++){
     a[i]=a[i]/gain;
   }
-console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
+if (printcoeff) console.log('------------sa=',sa,'sb=',sb,'a=',a,'b=',b);
+return {a,b}
 }
 
 
@@ -211,15 +213,15 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
 
     const fd=512;//1024;  //sampling rate, Hz
 
-    const buflen=512; //signal buffer length
+    const buflen=512; //signal buffer length - even!!!
 
     const canvas1_height = 512; //canvas height
-    const ym1 = canvas1_height/2;
+    //const ym1 = canvas1_height/2;
     const canvas_height = 256; //canvas height
     const ym=canvas_height/2;
     const canvas_width = 534;//1080;   //canvas width
 
-    const signal_ampl = 80;//canvas_height/2-5-max_noise_ampl;
+    const signal_ampl = 40;//canvas_height/2-5-max_noise_ampl;
     const max_noise_ampl=2*signal_ampl;// 200%
     var noise_ampl=max_noise_ampl;//50;
 
@@ -237,25 +239,71 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
     const num_coeff=4;//number of b coefficients (b[1],,...b[num_coef]) num_coef <= 20
     const a=[0.1335566, 0.5342263, 0.8013394, 0.5342263, 0.1335566]; //filter a[i] coefficients
     const b=[0, -0.3904486, -0.6784138, -0.01412021, -0.05392238]; //filter b[i] coefficients
-    const isignf=[]; //filtered signal
+
 
     function filterIsignBuf(){//result will be in isignf
+      let fc=displayFilterParamsrect.getCurrentValue(2)/100;//fraction of fc in the range 0-0.5
+      let lh=displayFilterParamsrect.getCurrentValue(3);//0 - for low or 1 - for high
+      let pr=displayFilterParamsrect.getCurrentValue(1);//percent in the range 0-30
+      let np=displayFilterParamsrect.getCurrentValue(0);//even number in the range 2-20
+
+      let isignf=[]; //filtered signal
+      let ab = chebyshev1IIR(fc,lh,pr,np);
+      let a=ab.a;
+      let b=ab.b;
+
+  if (printcoeff){
+  console.log('parametrii filtrului: fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
+  console.log('ab.a=',a,'ab.b=',b);
+  printcoeff=0;
+  }
+      let num_coeff = np;
+
       isignf[0]=a[0]*isign[0];
       for (let k=1; k<num_coeff; k++){
         let s=a[0]*isign[k];
         for (let l=1;l<k+1; l++){
-          s=s+a[l]*isign[k-l]+b[l]*isignf[k-l];
+          s=s+a[l]*isign[k-l]-b[l]*isignf[k-l];
         };
         isignf[k]=s;
       }
       for (let k=num_coeff; k<buflen; k++){
         let s=a[0]*isign[k];
         for (let l=1;l<num_coeff+1; l++){
-          s=s+a[l]*isign[k-l]+b[l]*isignf[k-l];
+          s=s+a[l]*isign[k-l]-b[l]*isignf[k-l];
         };
         isignf[k]=s;
       }
+      return isignf;
     }
+
+
+
+    function genNoise(a,f1,f2){//512 points, 256 harmonix
+      let re=[];
+      let im=[];
+      let x=[];
+
+      for (let i=Math.ceil(512*f1); i<=Math.floor(512*f2); i++){
+        re[i]=a*Math.random();
+        im[i]=a*Math.random();
+      }
+      im[0]=0;
+      im[256]=0;
+      if (re[0]==undefined) re[0]=0;
+      if (re[256]==undefined) re[256]=0;
+
+      for (let k=0; k<512; k++){
+        x[k]=re[0]+re[256]*(-(k%2));
+        for (let n=Math.ceil(512*f1); n<=Math.floor(512*f2); n++){
+          x[k]=x[k]+2*(re[n]*Math.cos(2*Math.PI*n*k/512)-im[n]*Math.sin(2*Math.PI*n*k/512));
+        }
+      }
+      return x;
+    }
+
+    let visibleVertCubesMenu = undefined;//the shown vertCubesMenu
+    let selectedObject = undefined;//the object that invoked the current vertCubesMenu
 
     class tvertCubesMenu {
 
@@ -274,10 +322,9 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
         this.y=0;
         this.z=0;
         this.dy=0;
+        this.previousSelectedCubeIndex=undefined;
 
         this.tblrmaterial = new THREE.MeshPhongMaterial({ color: 0x440044 }); // top,bottom,left,right
-        this.previousSelectedCube=null;
-
         let hh=(cyup-cydn)/this.texts.length;
         let h=hh;
         if (h>1) h=1;
@@ -288,7 +335,6 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
           this.canvas[i].height = 256;  //canvas height
           this.drawCanvas(i,0);
           this.textures[i] = new THREE.CanvasTexture(this.canvas[i]);
-          this.previousSelectedCube=null;
           this.geometry = new THREE.BoxGeometry(1, h, h);//boxwidth,boxheight, boxdeepth
           this.materials[i] = new THREE.MeshPhongMaterial({map: this.textures[i]}); //make a material of the given texture
           this.cubes[i] = new THREE.Mesh(this.geometry, [
@@ -309,19 +355,19 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
             func : (mod)=>{this.drawCanvas(i,mod); this.cubes[i].userData.mod=mod; this.textures[i].needsUpdate=true;},
 
             pointerDown : (uv)=>{
-//console.log('point=',point);
-              if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
-              if (this.cubes[i] != this.previousSelectedCube ) {
+//console.log('pointerDown-----point=',uv);
+              if (this.previousSelectedCubeIndex!==undefined) this.cubes[this.previousSelectedCubeIndex].userData.unselectTexture();//if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
+              if (i != this.previousSelectedCubeIndex ) {//if (this.cubes[i] != this.previousSelectedCube ) {
                 this.cubes[i].userData.selectTexture();
-                adjustParameterValueRect.drawParameter(i);
-                this.previousSelectedCube = this.cubes[i];
+                adjustParameterValueRect.drawParameter(i,this);
+                this.previousSelectedCubeIndex = i;//this.previousSelectedCube = this.cubes[i];
               } else {
-                this.previousSelectedCube = null;
+                this.previousSelectedCubeIndex = undefined;//this.previousSelectedCube = null;
                 adjustParameterValueRect.clear();
               }
             },
-            selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true;},
-            unselectTexture : ()=>{this.drawCanvas(i,0); this.textures[i].needsUpdate=true;},
+            selectTexture   : ()=>{this.drawCanvas(i,1); this.textures[i].needsUpdate=true},
+            unselectTexture : ()=>{this.drawCanvas(i,0); this.textures[i].needsUpdate=true},
           };
 
           camera.add(this.cubes[i]);
@@ -330,10 +376,26 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
         this.z=this.cubes[this.texts.length-1].position.z;
         this.y=this.cubes[this.texts.length-1].position.y;
         this.dy=hh;
+
+        this.hide();//hide the menu
       }
 
       setParamLimits(limits){
         this.limits=limits; //[vmin,v,vmax,dv,units],...,[vmin,v,vmax,dv,units]
+      }
+
+      hide(){
+        this.cubes.forEach((cube, ndx) => {
+          cube.visible = false;
+          cube.scale.set(0.5,0.5,0.5);
+        });
+      }
+
+      show(){
+        this.cubes.forEach((cube, ndx) => {
+          cube.scale.set(1,1,1);
+          cube.visible = true;
+        });
       }
 
       drawCanvas(i,mode){//mode=0 uses bgcolor and mode !=0 uses bgcolor1
@@ -370,8 +432,10 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
     }
 
     //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
-    const vertCubesMenu = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level','%'],['IIR filter','units'],['ddddd','eee','fffff','units']],camera);
-    vertCubesMenu.setParamLimits([[0,5,50],[0,200,200],[5,8,10],[16,20,200]]);
+    const vertCubesMenu = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level,','%A'],['Noise','cutoff','fr.,','%Fs'],['Noise','type']],camera);
+    vertCubesMenu.setParamLimits([[0, 5, 50, 1],[0,200,200,0],[0, 35, 50, 1],[0, 1, 1,'Low-fr','High-fr']]);
+    const vertCubesMenu1 = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Number','of poles'],['Passband','ripple,','%A'],['Cutoff','frequency,','%Fs'],['Filter','type']],camera);
+    vertCubesMenu1.setParamLimits([[2, 2, 20, -2/*even number*/],[0, 0.5, 30, 1],[0, 5, 50, 1],[0, 0, 1,'L-pass','H-pass']]);
 
 
     const sin2pii_buflen=[];
@@ -388,14 +452,7 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
 
 
     class tdisplaySpectrumRect {
-/*
-      bgcolor:0x440044,
-      fgcolor:'gold',
-      canvas:null,
-      ctx:null,
-      texture:null,
-      cube:null,
-*/
+
       constructor (w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
@@ -457,7 +514,7 @@ console.log('sa=',sa,'sb=',sb,'a=',a,'b=',b);
         ctx.clearRect(0, 0, w, canvas_height);
         ctx.fillStyle = this.bgcolor;
         ctx.strokeStyle = this.fgcolor;
-ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillRect(8+1, ym-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
 
         for (let n = 0; n < buflen/2+1; n++) { //calculate signal harmonics (first part)
@@ -467,12 +524,12 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
             x[n] = x[n] + isign[i]*cos2pii_buflen[(i*n) % buflen];
             y[n] = y[n] + isign[i]*sin2pii_buflen[(i*n) % buflen];
           }
-          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;
+          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*2/buflen;
         }
         for (let n = buflen/2+1; n < buflen; n++) {//signal harmonics (second part)
           x[n]=x[buflen-n];
           y[n]=-y[buflen-n];
-          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*4/buflen;//calculate AF spectrum
+          sp[n]=Math.sqrt(x[n]**2+y[n]**2)*2/buflen;//calculate AF spectrum
         }
 
         ctx.beginPath();
@@ -480,7 +537,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.lineTo(buflen,ym);
         for (let i = 0; i < buflen; i++) {
           ctx.moveTo(11+i,ym);
-          ctx.lineTo(11+i,ym-sp[i]/2);
+          ctx.lineTo(11+i,ym-sp[i]);
         }
         ctx.stroke();
         this.texture.needsUpdate=true;
@@ -541,8 +598,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         plane.position.x=x;
         plane.position.y=y;
         plane.position.z=z;
-        //plane.scale.set(4,2,1);
-
+        //plane.scale.set(4,2,1);;
 
 /*
         let material1 = new THREE.SpriteMaterial( { map: this.texture } );
@@ -555,19 +611,58 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       }
 
       drawSignal() {
+
         let ctx = this.ctx;
         let w = this.canvas.width;
         let h = this.canvas.height;
+        let ym1 = h/2;
         ctx.clearRect(0, 0, w, h);
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
 
         ctx.beginPath();
         ctx.moveTo(12,ym1);
-        for (let i = 0; i < buflen; i++) {
+
+  //----------------------------------
+        let noiseCutoffFr=displaySignalParamsrect.getCurrentValue(2)/100;//noise cutoff frequency as a fraction of sampling rate
+        let noiseAmp=displaySignalParamsrect.getCurrentValue(1)/100;
+        if ( displaySignalParamsrect.getCurrentValue(3) == 0 ){//noise type == Low_fr
+          let x=genNoise(5,0,noiseCutoffFr);
+          for (let i = 0; i < buflen; i++) {
+            isign[i]=isin[i] + x[i]*noiseAmp;
+            ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
+          }
+        } else {
+          let x=genNoise(5,noiseCutoffFr,0.5);
+          for (let i = 0; i < buflen; i++) {
+            isign[i]=isin[i] + x[i]*noiseAmp;
+            ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
+          }
+        }
+/*
+//console.log('noiseCutoff=',noiseCutoffFr);
+        let ph=Math.floor(2*Math.PI*Math.random());//sh is random from 0 to 2pi
+        let m=Math.random()*0.05;
+        if ( displaySignalParamsrect.getCurrentValue(3) == 0 ){//noise type == Low_fr
+          for (let i = 0; i < buflen; i++) {
+            isign[i]=isin[i] + noise_ampl*Math.sin(ph+Math.PI*i*(0.95+m)*(noiseCutoffFr*i/buflen));
+            ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
+          }
+        } else {//noise type == High_fr
+          for (let i = 0; i < buflen; i++) {
+            isign[i]=isin[i] + noise_ampl*Math.sin(ph+Math.PI*i*(0.95+m)*(noiseCutoffFr*i/buflen));
+            ctx.lineTo((i+10),ym1 - isign[i]);
+          }
+        }
+*/
+  //----------------------------------
+/*
+        for (let i = 0; i < buflen; i++) {//Add noise to the signal
           isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
           ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
         }
+*/
+
         ctx.stroke();
         this.texture.needsUpdate=true;
       }
@@ -576,6 +671,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         let ctx = this.ctx;
         let w = this.canvas.width;
         let h = this.canvas.height;
+        let ym1 = h/2;
         ctx.clearRect(0, 0, w, h);
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
@@ -594,6 +690,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         let ctx = this.ctx;
         let w = this.canvas.width;
         let h = this.canvas.height;
+        let ym1 = h/2;
         ctx.clearRect(0, 0, w, h);
         ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
@@ -601,7 +698,7 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
         ctx.beginPath();
         ctx.moveTo(12,ym1);
 
-        filterIsignBuf();
+        let isignf=filterIsignBuf();
 
         for (let i = 0; i < buflen; i++) {
           //isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
@@ -612,11 +709,14 @@ ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
       }
     }
 
-class tdisplayParameterValuesrect {
-  constructor (w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+
+class tdisplaySignalParamsrect {
+  constructor (w, h, x, y, z, bgcolor, fgcolor, canvas_width, canvas_height, camera, vertCubesMenu, title) {
+    this.title=title;
+    this.select=0;
+    this.vertCubesMenu=vertCubesMenu;
     this.fgcolor=fgcolor;
     this.bgcolor=bgcolor;
-
     this.canvas = document.createElement('canvas'); //create a canvas
     let canvas=this.canvas;
     canvas.width = canvas_width;   //canvas width
@@ -624,20 +724,7 @@ class tdisplayParameterValuesrect {
     this.ctx = canvas.getContext('2d'); //create a canvas context
     let ctx=this.ctx;
     this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
-    //ctx.beginPath();
-    ctx.fillStyle = this.bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "40px Times";
-    ctx.strokeStyle = this.fgcolor;
-    ctx.fillStyle = this.fgcolor;
-    ctx.textAlign = "left";
-    ctx.fillText("Signal frequency:", 20, this.canvas.height-25);
-    ctx.fillText("Noise level:     ", 20, this.canvas.height-65);
-
-    ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
-
-    ctx.fillStyle = this.bgcolor;
-
+    this.drawParams(0);//not selected
     let geometry1 = new THREE.PlaneGeometry( w, h );
     let material1 = new THREE.MeshPhongMaterial( {map:this.texture} );
     let plane = new THREE.Mesh( geometry1, material1 );
@@ -645,12 +732,113 @@ class tdisplayParameterValuesrect {
     plane.position.x=x;
     plane.position.y=y;
     plane.position.z=z;
+
+    plane.userData={
+      pointerDown : (uv)=>{
+        if (visibleVertCubesMenu == undefined) { //if vert menus are not dispayed
+          this.vertCubesMenu.show(); //show the menu for the selected object
+          visibleVertCubesMenu = this.vertCubesMenu;
+            //
+          if (this.vertCubesMenu.previousSelectedCubeIndex !== undefined) adjustParameterValueRect.drawParameter(this.vertCubesMenu.previousSelectedCubeIndex,this.vertCubesMenu);
+          this.drawParams(1);//selected
+
+          selectedObject=this;
+        } else if (this.vertCubesMenu !== visibleVertCubesMenu) {//if vert menu was dispayed and the new vert menu differes from it
+          visibleVertCubesMenu.hide();
+          selectedObject.drawParams(0);
+  adjustParameterValueRect.clear();
+          this.vertCubesMenu.show(); //show the menu for the selected object
+
+          if (this.vertCubesMenu.previousSelectedCubeIndex !== undefined) adjustParameterValueRect.drawParameter(this.vertCubesMenu.previousSelectedCubeIndex,this.vertCubesMenu);
+          this.drawParams(1);//selected
+
+          selectedObject=this;
+          visibleVertCubesMenu = this.vertCubesMenu;
+        } else {//click on the same menu
+          visibleVertCubesMenu.hide();
+          visibleVertCubesMenu = undefined;
+          selectedObject.drawParams(0);
+          selectedObject=undefined;
+    adjustParameterValueRect.clear();
+        }
+
+      }
+    }
+  }
+
+  getCurrentValue(i){//returns the current value of i parameter
+    return(this.vertCubesMenu.limits[i][1]);
+  }
+
+  drawParams(select){
+    this.select=select;
+    let ctx = this.ctx;
+    if (select==1) {ctx.fillStyle = '#444400'} else {ctx.fillStyle = this.bgcolor};
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "40px Times";
+    ctx.strokeStyle = this.fgcolor;
+    ctx.fillStyle = this.fgcolor;
+
+    ctx.textAlign = "center";
+    ctx.fillText(this.title, this.canvas.width/2, 40);
+
+    let texts=this.vertCubesMenu.texts;
+    for (let i=0; i<texts.length; i++){
+      let strings = texts[i];
+      let s='';
+      strings.forEach((string, ndx) => {
+        s=s+' '+string;
+      });
+      ctx.textAlign = "left";
+      ctx.fillText(s+':', 4, this.canvas.height-25-i*40);
+      ctx.textAlign = "right";
+      let lim=this.vertCubesMenu.limits[i];
+      if (typeof(lim[3])=='number') {
+        let c=lim[3];
+        if (c<0) c=0;
+        ctx.fillText(lim[1].toFixed(c), this.canvas.width-10, this.canvas.height-25-i*40);
+      } else ctx.fillText(lim[3+lim[1]], this.canvas.width-10, this.canvas.height-20-i*40);
+    }
+    ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+    this.texture.needsUpdate=true;
+  }
+
+  drawParamsInCurrentState(){//draw params without changing the state of the window
+    let ctx = this.ctx;
+    if (this.select==1) {ctx.fillStyle = '#444400'} else {ctx.fillStyle = this.bgcolor};
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "40px Times";
+    ctx.strokeStyle = this.fgcolor;
+    ctx.fillStyle = this.fgcolor;
+
+    ctx.textAlign = "center";
+    ctx.fillText(this.title, this.canvas.width/2, 40);
+
+    let texts=this.vertCubesMenu.texts;
+    for (let i=0; i<texts.length; i++){
+      let strings = texts[i];
+      let s='';
+      strings.forEach((string, ndx) => {
+        s=s+' '+string;
+      });
+      ctx.textAlign = "left";
+      ctx.fillText(s+':', 4, this.canvas.height-25-i*40);
+      ctx.textAlign = "right";
+      let lim=this.vertCubesMenu.limits[i];
+      if (typeof(lim[3])=='number') {
+        let c=lim[3];
+        if (c<0) c=0;
+        ctx.fillText(lim[1].toFixed(c), this.canvas.width-10, this.canvas.height-25-i*40);
+      } else ctx.fillText(lim[3+lim[1]], this.canvas.width-10, this.canvas.height-20-i*40);
+    }
+    ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+    this.texture.needsUpdate=true;
   }
 }
 
     class tadjustParameterValueRect {
-
       constructor(w,h,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,camera) {
+        this.vertCubesMenu=undefined;
         this.cubeindex=undefined;
         this.fgcolor=fgcolor;
         this.bgcolor=bgcolor;
@@ -661,8 +849,8 @@ class tdisplayParameterValuesrect {
         canvas.height = canvas_height;  //canvas height
         this.ctx = canvas.getContext('2d'); //create a canvas context
         let ctx=this.ctx;
-
         this.texture = new THREE.CanvasTexture(canvas);//create a texture based on this canvas;
+
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = this.fgcolor;
@@ -685,18 +873,44 @@ class tdisplayParameterValuesrect {
           pointerDown : (uv)=>{
           //console.log('point=',point);
           if (this.cubeindex !== undefined) {
-            let lim=vertCubesMenu.limits[this.cubeindex];
-            lim[1]=lim[0]+(lim[2]-lim[0])*uv.x;
-            vertCubesMenu.limits[this.cubeindex]=lim;
+            let lim=this.vertCubesMenu.limits[this.cubeindex];
+            //lim[1]=lim[0]+(lim[2]-lim[0])*uv.x;
+            let x=lim[0]+(lim[2]-lim[0])*uv.x;
 
-            console.log('pointewrDown lim=',lim,' uv.x=',uv.x);
+            if (lim[3]==0) {//integer values, step>=1
+              if (x<lim[1]) {lim[1]=Math.floor(x)}
+              else lim[1]=Math.ceil(x);
+            }
+            else if (lim[3]==1) {//one decimal values, step>=0.1
+              if (x<lim[1]) {lim[1]=Math.floor(x*10)/10}
+              else lim[1]=Math.ceil(x*10)/10;
+            }
+            else if (lim[3]==2) {//two decimal values, step>=0.01
+              if (x<lim[1]) {lim[1]=Math.floor(x*100)/100}
+              else lim[1]=Math.ceil(x*100)/100;
+            }
+            else if (lim[3]==-2) {//integer values, step is even,>=2
+              if (x<lim[1]) {
+                lim[1]=Math.floor(x);
+                if (lim[1]%2) lim[1]--;
+              }
+              else {
+                lim[1]=Math.ceil(x);
+                if (lim[1]%2) lim[1]++;
+              }
+            } else lim[1]=Math.round(x);
+  //console.log('----------------lim[1]=',lim[1],'x=',x);
+            this.vertCubesMenu.limits[this.cubeindex]=lim;
+
+    //console.log('pointewrDown lim=',lim,' uv.x=',uv.x);
+            if (selectedObject==displaySignalParamsrect)
             switch(this.cubeindex) {
               case 0:
                 f=fd*lim[1]/100;
                 //console.log('f=',f);
                 for (let i = 0; i < buflen; i++) isin[i] = signal_ampl*Math.cos(2*Math.PI*i*f/fd);
         //getpolepair(0.1,0,0,4,1);//getpolepair(0.1,1,10,4,2);//getpolepair(fc,lh,pr,np,p)
-        chebyshev1IIR(0.01,1,0.5,2);//chebyshev1IIR(fc,lh,pr,np);
+        //chebyshev1IIR(0.01,1,0.5,2);//chebyshev1IIR(fc,lh,pr,np);
                 break;
               case 1:
                 noise_ampl=signal_ampl*lim[1]/100;
@@ -704,19 +918,37 @@ class tdisplayParameterValuesrect {
                 break;
               default:
                 // code block
+            } else if (selectedObject==displayFilterParamsrect)
+    printcoeff=1;//to print filter coeff with console.log()
+            switch(this.cubeindex) {
+              case 0:
+                console.log('case 0');
+                break;
+              case 1:
+                console.log('case 1');
+                // code block
+                break;
+              case 2:
+                console.log('case 2');
+                break;
+              case 3:
+                console.log('case 3');
+                break;
+              default:
+                // code block
             }
-            this.drawParameter(this.cubeindex);
+            this.drawParameter(this.cubeindex,this.vertCubesMenu);
 //console.log('parameter index=',this.cubeindex,'this.canvas.getBoundingClientRect()=', this.canvas.getBoundingClientRect());
             } else console.log('parameter not selected!!!');
-          },
+          }
         }
 
       }
 
-      drawParameter(i){
+      drawParameter(i,vertCubesMenu){
         this.cubeindex=i;//selected parameted has index i
 //console.log('enter drawParameter');
-
+this.vertCubesMenu=vertCubesMenu;
         let ctx=this.ctx;
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);//clear the inside rectangular zone;
@@ -730,28 +962,45 @@ class tdisplayParameterValuesrect {
         ctx.fillText(s, this.canvas.width/2, 50); //output parameter name on the rectangle
 
         let lim=vertCubesMenu.limits[i];
-  console.log('i=',i,'vertCubesMenu.limits[i]=',vertCubesMenu.limits[i]);
-        ctx.fillStyle = this.fgcolor1;
-        ctx.textAlign = "left";
-        ctx.fillText(lim[0], 11, 50+40); //output minimal value
-        ctx.textAlign = "right";
-        ctx.fillText(lim[2], this.canvas.width-11, 50+40);//output maximal value
+  //console.log('i=',i,'vertCubesMenu.limits[i]=',vertCubesMenu.limits[i]);
+        if (typeof(lim[3])=='number') {
+          ctx.fillStyle = this.fgcolor1;
+          ctx.textAlign = "left";
+          ctx.fillText(lim[0], 11, 50+40); //output minimal value
+          ctx.textAlign = "right";
+          ctx.fillText(lim[2], this.canvas.width-11, 50+40);//output maximal value
 
-        ctx.fillStyle = this.fgcolor;
-        let x=(this.canvas.width-2*8-4)*(lim[1]-lim[0])/(lim[2]-lim[0]);
-//console.log('x=',x,' lim=',lim);
-        x=Math.round(x);
+          ctx.fillStyle = this.fgcolor;
+          let x=(this.canvas.width-2*8-4)*(lim[1]-lim[0])/(lim[2]-lim[0]);
+//console.log('-------------x=',x,' lim=',lim);
+          x=Math.round(x);
 //console.log('x=',x);
-        ctx.fillRect(8+2, 100, x, this.canvas.height-2*8-50-100);
-        if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
-        else ctx.textAlign = "right";
-        ctx.fillText(Math.round(lim[1]*10)/10, x+8, this.canvas.height-20);
-
+          ctx.fillRect(8+2, 100, x, this.canvas.height-2*8-50-100);
+          if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
+          else ctx.textAlign = "right";
+          let c=lim[3];
+          if (c<0) c=0;
+          ctx.fillText(lim[1].toFixed(c), x+8, this.canvas.height-20);
+        } else {
+          ctx.fillStyle = this.fgcolor1;
+          ctx.textAlign = "left";
+          ctx.fillText(lim[3], 11, 50+40); //output minimal value
+          ctx.textAlign = "right";
+          ctx.fillText(lim[4], this.canvas.width-11, 50+40);//output maximal value
+          ctx.fillStyle = this.fgcolor;
+          if (lim[1]==0) {ctx.fillRect(8+2, 100, this.canvas.width/2, this.canvas.height-2*8-50-100)}
+          else ctx.fillRect(10+this.canvas.width/2, 100, this.canvas.width/2-2*10, this.canvas.height-2*8-50-100)
+          ctx.textAlign = "center";
+          let c=lim[3];
+          if (c<0) c=0;
+          ctx.fillText(lim[3+lim[1]], this.canvas.width/2+8, this.canvas.height-20);
+        }
         this.texture.needsUpdate=true;
+        if (selectedObject!==undefined) selectedObject.drawParamsInCurrentState();
       }
+
       clear(){
         this.cubeindex=undefined; //parameter not selected
-
         let ctx=this.ctx;
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);
@@ -759,18 +1008,18 @@ class tdisplayParameterValuesrect {
       }
     }
 
-    // initial signal
-    const displaySignalRect = new tdisplaySignalRect(boxWidth, boxHeight*2, vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
-    // signal after filtering
-    const displayFilteredSignalRect = new tdisplaySignalRect(boxWidth, boxHeight*2, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas1_height,camera);
-    // initial signal spectrum
-    const displaySpectrumRect = new tdisplaySpectrumRect(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
-    //parameters and their values
-    const displayParameterValuesrect = new tdisplayParameterValuesrect(boxWidth,boxHeight,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold'
-    ,canvas_width,canvas1_height/2,camera);
-    // window to change the curren parameter's value
-    //w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
+    // window to change the curren parameter's value  //w,h,d,x,y,z,bgcolor,fgcolor,canvas_width,canvas_height,string,vmin,v,vmax,units,scene
     const adjustParameterValueRect = new tadjustParameterValueRect(boxWidth*2, boxHeight, vertCubesMenu.x+vertCubesMenu.dy + 3*boxWidth/2, vertCubesMenu.y-6*vertCubesMenu.dy/2, vertCubesMenu.z,'#004444','gold',canvas_width,canvas_height,camera);
+    //initial signal parameters and their values
+    const displaySignalParamsrect = new tdisplaySignalParamsrect(boxWidth,boxHeight,   vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-0*vertCubesMenu.dy, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera, vertCubesMenu,'Input Signal Params');
+    //initial signal parameters and their values
+    const displayFilterParamsrect = new tdisplaySignalParamsrect(boxWidth,boxHeight,   vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-0*vertCubesMenu.dy, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera, vertCubesMenu1,'IIR Chebyshev Filter Params');
+    // initial signal
+    const displaySignalRect =         new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-2*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    // signal after filtering
+    const displayFilteredSignalRect = new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-2*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    // initial signal spectrum
+    const displaySpectrumRect = new tdisplaySpectrumRect(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
 
 
     class PickHelper {
@@ -783,8 +1032,12 @@ class tdisplayParameterValuesrect {
         this.raycaster.setFromCamera(normalizedPosition, camera);  // cast a ray through the frustum
         // get the list of objects the ray intersected
         const intersectedObjects = this.raycaster.intersectObjects(camera.children);
-  console.log('uv=',intersectedObjects[0].object);
-        if (intersectedObjects.length) intersectedObjects[0].object.userData.pointerDown(intersectedObjects[0].uv);
+        if (intersectedObjects.length){
+//console.log('intersectedObjects.length=',intersectedObjects.length)
+//console.log('intersectedObjects[0].object.visible=',intersectedObjects[0].object.visible);
+          if (intersectedObjects[0].object.visible)   intersectedObjects[0].object.userData.pointerDown(intersectedObjects[0].uv);
+
+        }
       }
     }
 
