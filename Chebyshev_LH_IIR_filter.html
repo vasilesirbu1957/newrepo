@@ -278,25 +278,20 @@ return {a,b}
     }
 
 
-
     function genNoise(a,f1,f2){//512 points, 256 harmonix
       let re=[];
       let im=[];
       let x=[];
-
-      for (let i=Math.ceil(512*f1); i<=Math.floor(512*f2); i++){
-        re[i]=a*Math.random();
-        im[i]=a*Math.random();
+//let a=10*a1;
+      for (let i=Math.ceil(buflen*f1); i<=Math.floor(buflen*f2); i++){//fill noise spectrum
+        re[i]=2*a*(Math.random()-0.5);
+        im[i]=2*a*(Math.random()-0.5);
       }
-      im[0]=0;
-      im[256]=0;
-      if (re[0]==undefined) re[0]=0;
-      if (re[256]==undefined) re[256]=0;
 
-      for (let k=0; k<512; k++){
-        x[k]=re[0]+re[256]*(-(k%2));
-        for (let n=Math.ceil(512*f1); n<=Math.floor(512*f2); n++){
-          x[k]=x[k]+2*(re[n]*Math.cos(2*Math.PI*n*k/512)-im[n]*Math.sin(2*Math.PI*n*k/512));
+      for (let k=0; k<buflen; k++){//calculate noise signal
+        x[k]=0;
+        for (let n=Math.ceil(buflen*f1); n<=Math.floor(buflen*f2); n++){
+          x[k]=x[k]+2*(re[n]*Math.cos(2*Math.PI*n*k/buflen)-im[n]*Math.sin(2*Math.PI*n*k/buflen));
         }
       }
       return x;
@@ -309,6 +304,7 @@ return {a,b}
 
       constructor(x,cyup,cydn,z,bgcolor,fgcolor,bgcolor1,texts,camera){
         this.limits=null;
+        this.limitsFunc=undefined;
         this.texts=texts;
         this.bgcolor=bgcolor;
         this.fgcolor=fgcolor;
@@ -380,8 +376,9 @@ return {a,b}
         this.hide();//hide the menu
       }
 
-      setParamLimits(limits){
+      setParamLimits(limits,limitsFunc){
         this.limits=limits; //[vmin,v,vmax,dv,units],...,[vmin,v,vmax,dv,units]
+        this.limitsFunc=limitsFunc;
       }
 
       hide(){
@@ -432,10 +429,30 @@ return {a,b}
     }
 
     //x,cyup,cydn,z,bgcolor,fgcolor,texts,camera
-    const vertCubesMenu = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise level,','%A'],['Noise','cutoff','fr.,','%Fs'],['Noise','type']],camera);
-    vertCubesMenu.setParamLimits([[0, 5, 50, 1],[0,200,200,0],[0, 35, 50, 1],[0, 1, 1,'Low-fr','High-fr']]);
-    const vertCubesMenu1 = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Number','of poles'],['Passband','ripple,','%A'],['Cutoff','frequency,','%Fs'],['Filter','type']],camera);
-    vertCubesMenu1.setParamLimits([[2, 2, 20, -2/*even number*/],[0, 0.5, 30, 1],[0, 5, 50, 1],[0, 0, 1,'L-pass','H-pass']]);
+    const vertCubesMenu =  new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Signal','frequency,','%Fs'],['Noise','harmonics,','%A'],  ['Noise band,','%Fs'       ],['Noise','type' ]],camera);
+    const vertCubesMenu1 = new tvertCubesMenu(-3.6,2+0.05,-2+0.05,-7,'#004444','gold','#444400',[['Number','of poles'        ],['Passband','ripple,','%A'],['Filter','passband,','%Fs'],['Filter','type']],camera);
+    //lim[0]=vmin; lim[1]=vcurrent; lim[2]=vmax; lim[3]=step-any number with two digits max
+    //lim[4]=how to mark:
+    //0 - mark one value; //1 - mark left range; //2 - mark right range;
+    //3 - mark last two values range, the second value should be provided in lim[5]
+    //if strings are attached from lim[5] and further - lim[5+k] corresponds to the valuelim[0]+k*lim[3]
+    vertCubesMenu.setParamLimits( [[0, 5, 50, 0.1, 0],[0, 300, 300,   1, 0],[0, 35, 50, 0.1, 2],[0, 1, 1, 1, 0,'Low-fr','High-fr']],limitsFunc1);
+    vertCubesMenu1.setParamLimits([[2, 2, 20,   2, 0],[0, 0.5, 30,  0.1, 0],[0, 5,  50, 0.1, 1],[0, 0, 1, 1, 0,'L-pass','H-pass' ]],limitsFunc2);
+
+    function limitsFunc1(){
+      if (vertCubesMenu.limits[3][1]==0) {vertCubesMenu.limits[2][4]=1}
+      else if (vertCubesMenu.limits[3][1]==1) {vertCubesMenu.limits[2][4]=2}
+    }
+
+    function limitsFunc2(){
+      if (vertCubesMenu1.limits[3][1]==0) {vertCubesMenu1.limits[2][4]=1}
+      else if (vertCubesMenu1.limits[3][1]==1) {vertCubesMenu1.limits[2][4]=2}
+    }
+    //lim[3]: 0,1,2 - 0,1,2 decimals; when=0 strings may be attached
+    //lim[3]: -2 - even numbers only;
+
+    //vertCubesMenu.setParamLimits( [[0, 5, 50, 1, 0],[0, 300, 300, 0, 1],[0, 35, 50, 1, 2],[0, 1, 1, 0, 2,'Low-fr','High-fr']]);
+    //vertCubesMenu1.setParamLimits([[2, 2, 20,-2, 0],[0, 0.5, 30,  1, 1],[0, 5,  50, 1, 1],[0, 0, 1, 0, 1,'L-pass','H-pass']]);
 
 
     const sin2pii_buflen=[];
@@ -573,7 +590,7 @@ return {a,b}
         //ctx.lineTo(this.canvas.width/2-4,this.canvas.height-8);
         //ctx.stroke();
         ctx.fillStyle = this.bgcolor;
-        this.drawSignal();
+        //this.drawSignal();
 /*
         let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
         let material0 = new THREE.MeshPhongMaterial({ color: this.bgcolor }); // material with the given color
@@ -627,13 +644,13 @@ return {a,b}
         let noiseCutoffFr=displaySignalParamsrect.getCurrentValue(2)/100;//noise cutoff frequency as a fraction of sampling rate
         let noiseAmp=displaySignalParamsrect.getCurrentValue(1)/100;
         if ( displaySignalParamsrect.getCurrentValue(3) == 0 ){//noise type == Low_fr
-          let x=genNoise(5,0,noiseCutoffFr);
+          let x=genNoise(15,0,noiseCutoffFr);
           for (let i = 0; i < buflen; i++) {
             isign[i]=isin[i] + x[i]*noiseAmp;
             ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
           }
         } else {
-          let x=genNoise(5,noiseCutoffFr,0.5);
+          let x=genNoise(15,noiseCutoffFr,0.5);
           for (let i = 0; i < buflen; i++) {
             isign[i]=isin[i] + x[i]*noiseAmp;
             ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
@@ -673,7 +690,7 @@ return {a,b}
         let h = this.canvas.height;
         let ym1 = h/2;
         ctx.clearRect(0, 0, w, h);
-        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(8, 8, w-2*8, h-2*8);
         ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
 
         ctx.beginPath();
@@ -692,7 +709,7 @@ return {a,b}
         let h = this.canvas.height;
         let ym1 = h/2;
         ctx.clearRect(0, 0, w, h);
-        ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
+        ctx.strokeRect(8, 8, w-2*8, h-2*8);
         ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
 
         ctx.beginPath();
@@ -703,6 +720,26 @@ return {a,b}
         for (let i = 0; i < buflen; i++) {
           //isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
           ctx.lineTo((i+10),ym1 - isignf[i]); //draw the signal with noise
+        }
+        ctx.stroke();
+        this.texture.needsUpdate=true;
+      }
+
+      drawbuf(buf) {
+        let ctx = this.ctx;
+        let w = this.canvas.width;
+        let h = this.canvas.height;
+        let ym1 = h/2;
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeRect(8, 8, w-2*8, h-2*8);
+        ctx.fillRect(8+1, ym1-signal_ampl, w-2*8-2, 2*signal_ampl); //fill rectangle
+
+        ctx.beginPath();
+        ctx.moveTo(12,ym1);
+
+        for (let i = 0; i < buflen; i++) {
+          //isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
+          ctx.lineTo((i+10),ym1 - buf[i]); //draw the signal with noise
         }
         ctx.stroke();
         this.texture.needsUpdate=true;
@@ -793,11 +830,42 @@ class tdisplaySignalParamsrect {
       ctx.fillText(s+':', 4, this.canvas.height-25-i*40);
       ctx.textAlign = "right";
       let lim=this.vertCubesMenu.limits[i];
+
+      let c=0;
+      if ((lim[3]*100)%10!==0) {c=2}
+      else if ((lim[3]*10)%10!==0) {c=1};
+      let n=0;
+
+      switch(lim[4]) {
+        case 0:
+          if (lim[5]!==undefined){
+            n=Math.round((lim[1]-lim[0])/lim[3]);
+            s=lim[5+n];
+          } else s=lim[1].toFixed(c);
+          break;
+        case 1:
+          s=lim[0].toFixed(c)+'-'+lim[1].toFixed(c);
+          // code block
+          break;
+        case 2:
+          s=lim[1].toFixed(c)+'-'+lim[2].toFixed(c);
+          break;
+        case 3:
+          s=lim[1].v1.toFixed(c)+'-'+lim[1].v2.toFixed(c);
+          break;
+        default:
+          // code block
+      }
+      ctx.fillText(s, this.canvas.width-10, this.canvas.height-25-i*40);
+
+
+/*
       if (typeof(lim[3])=='number') {
         let c=lim[3];
         if (c<0) c=0;
         ctx.fillText(lim[1].toFixed(c), this.canvas.width-10, this.canvas.height-25-i*40);
       } else ctx.fillText(lim[3+lim[1]], this.canvas.width-10, this.canvas.height-20-i*40);
+*/
     }
     ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
     this.texture.needsUpdate=true;
@@ -825,11 +893,41 @@ class tdisplaySignalParamsrect {
       ctx.fillText(s+':', 4, this.canvas.height-25-i*40);
       ctx.textAlign = "right";
       let lim=this.vertCubesMenu.limits[i];
+
+      let c=0;
+      if ((lim[3]*100)%10!==0) {c=2}
+      else if ((lim[3]*10)%10!==0) {c=1};
+      let n=0;
+
+      switch(lim[4]) {
+        case 0:
+          if (lim[5]!==undefined){
+            n=Math.round((lim[1]-lim[0])/lim[3]);
+            s=lim[5+n];
+          } else s=lim[1].toFixed(c);
+          break;
+        case 1:
+          s=lim[0].toFixed(c)+'-'+lim[1].toFixed(c);
+          // code block
+          break;
+        case 2:
+          s=lim[1].toFixed(c)+'-'+lim[2].toFixed(c);
+          break;
+        case 3:
+          s=lim[1].v1.toFixed(c)+'-'+lim[1].v2.toFixed(c);
+          break;
+        default:
+          // code block
+      }
+      ctx.fillText(s, this.canvas.width-10, this.canvas.height-25-i*40);
+
+/*
       if (typeof(lim[3])=='number') {
         let c=lim[3];
         if (c<0) c=0;
         ctx.fillText(lim[1].toFixed(c), this.canvas.width-10, this.canvas.height-25-i*40);
       } else ctx.fillText(lim[3+lim[1]], this.canvas.width-10, this.canvas.height-20-i*40);
+*/
     }
     ctx.strokeRect(8, 8, this.canvas.width-2*8, this.canvas.height-2*8);
     this.texture.needsUpdate=true;
@@ -874,9 +972,28 @@ class tdisplaySignalParamsrect {
           //console.log('point=',point);
           if (this.cubeindex !== undefined) {
             let lim=this.vertCubesMenu.limits[this.cubeindex];
-            //lim[1]=lim[0]+(lim[2]-lim[0])*uv.x;
-            let x=lim[0]+(lim[2]-lim[0])*uv.x;
+//vertCubesMenu.setParamLimits( [[0, 5, 50, 0.1, 0],[0, 300, 300,   1, 1],[0, 35, 50, 0.1, 2],[0, 1, 1, 1, 2,'Low-fr','High-fr']]);
+//vertCubesMenu1.setParamLimits([[2, 2, 20,   2, 0],[0, 0.5, 30,  0.1, 1],[0, 5,  50, 0.1, 1],[0, 0, 1, 1, 1,'L-pass','H-pass']]);
 
+            let x=lim[0]+(lim[2]-lim[0])*uv.x;//x=new raw current value
+
+            let n=Math.floor(x/lim[3]);//n=how many steps are in current value;
+
+            if (lim[4]!==3) {//if it isn't a double sided range
+              if (x<lim[1]) {lim[1]=n*lim[3]} else {lim[1]=(n+1)*lim[3]}
+            }
+            else {//double sided range
+              let val1=lim[1].v1;
+              let val2=lim[1].v2;
+              if (x < val2) {
+                if (x<val1) {lim[1]={v1:n*lim[3], v2:val2} } else {lim[1]={v1:(n+1)*lim[3],v2:val2}};
+              }
+              else {
+                if (x<val2) {lim[1]={v1:val1,v2:n*lim[3]}} else {lim[1]={v1:val1,v2:(n+1)*lim[3]}};
+              }
+            }
+
+  /*
             if (lim[3]==0) {//integer values, step>=1
               if (x<lim[1]) {lim[1]=Math.floor(x)}
               else lim[1]=Math.ceil(x);
@@ -899,6 +1016,7 @@ class tdisplaySignalParamsrect {
                 if (lim[1]%2) lim[1]++;
               }
             } else lim[1]=Math.round(x);
+  */
   //console.log('----------------lim[1]=',lim[1],'x=',x);
             this.vertCubesMenu.limits[this.cubeindex]=lim;
 
@@ -946,9 +1064,9 @@ class tdisplaySignalParamsrect {
       }
 
       drawParameter(i,vertCubesMenu){
-        this.cubeindex=i;//selected parameted has index i
-//console.log('enter drawParameter');
-this.vertCubesMenu=vertCubesMenu;
+        this.cubeindex=i;//selected parameter has index i
+
+        this.vertCubesMenu=vertCubesMenu;
         let ctx=this.ctx;
         ctx.fillStyle = this.bgcolor;
         ctx.fillRect(8+1, 8+1, this.canvas.width-2*8-2, this.canvas.height-2*8-2);//clear the inside rectangular zone;
@@ -961,8 +1079,108 @@ this.vertCubesMenu=vertCubesMenu;
         ctx.fillStyle = this.fgcolor;
         ctx.fillText(s, this.canvas.width/2, 50); //output parameter name on the rectangle
 
-        let lim=vertCubesMenu.limits[i];
-  //console.log('i=',i,'vertCubesMenu.limits[i]=',vertCubesMenu.limits[i]);
+        let lim=vertCubesMenu.limits[i];//parameter's limits
+
+        ctx.fillStyle = this.fgcolor1;
+        ctx.textAlign = "left";
+        if (lim[5]==undefined){//if there are no strings
+          ctx.fillText(lim[0], 11, 50+40); //output minimal value
+          ctx.textAlign = "right";
+          ctx.fillText(lim[2], this.canvas.width-11, 50+40);//output maximal value
+        } else {//there are strings
+          ctx.fillText(lim[5], 11, 50+40); //output minimal value
+          ctx.textAlign = "right";
+          ctx.fillText(lim[lim.length-1], this.canvas.width-11, 50+40);//output maximal value
+        }
+        let x=0;
+        let x1=0;
+        let x2=0;
+        let c=0;
+        if ((lim[3]*100)%10!==0) {c=2}
+        else if ((lim[3]*10)%10!==0) {c=1};
+
+        switch(lim[4]) {
+          case 0://single value
+            console.log('case 0');
+            ctx.fillStyle = this.fgcolor;
+
+            let numb=(lim[2]-lim[0])/lim[3];
+            let w=(this.canvas.width-20)/(numb+1);
+            x=10+((lim[1]-lim[0])/lim[3])*w;
+            ctx.fillRect(x, 100, w, this.canvas.height-2*8-50-100);
+
+            ctx.beginPath();
+            ctx.moveTo(x+w/2,100);
+            ctx.lineTo(x+w/2,200);
+            ctx.stroke();
+            if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
+            else ctx.textAlign = "right";
+
+            if (lim[5]==undefined){//if there are no strings
+              ctx.fillText(lim[1].toFixed(c), x+w/2, this.canvas.height-20);
+            } else {
+              ctx.fillText(lim[5+Math.floor(lim[1]/lim[3])], x+w/2, this.canvas.height-20);
+            }
+            break;
+          case 1://left range
+            console.log('case 1');
+            ctx.fillStyle = this.fgcolor;
+            x=(this.canvas.width-20)*(lim[1]-lim[0])/(lim[2]-lim[0]);
+    //console.log('-------------x=',x,' lim=',lim);
+            x=Math.round(x);
+    //console.log('x=',x);
+            ctx.fillRect(10, 100, x, this.canvas.height-2*8-50-100);
+
+            if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
+            else ctx.textAlign = "right";
+
+            if (lim[5]==undefined){//if there are no strings
+              ctx.fillText(lim[1].toFixed(c), x+8, this.canvas.height-20);
+            } else {
+              ctx.fillText(lim[1], x+8, this.canvas.height-20);
+            }
+            // code block
+            break;
+          case 2://right range
+            console.log('case 2');
+            ctx.fillStyle = this.fgcolor;
+            x=(this.canvas.width-20)*(lim[1]-lim[0])/(lim[2]-lim[0]);
+    //console.log('-------------x=',x,' lim=',lim);
+            x=Math.round(x);
+    //console.log('x=',x);
+            ctx.fillRect(10+x, 100, this.canvas.width-x-20, this.canvas.height-2*8-50-100);
+
+            if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
+            else ctx.textAlign = "right";
+
+            if (lim[5]==undefined){//if there are no strings
+              ctx.fillText(lim[1].toFixed(c), x+8, this.canvas.height-20);
+            } else {
+              ctx.fillText(lim[1], x+8, this.canvas.height-20);
+            }
+            break;
+          case 3://double sided range
+            console.log('case 3');
+            ctx.fillStyle = this.fgcolor;
+            x1=(this.canvas.width-2*8-4)*(lim[1].v1-lim[0])/(lim[2]-lim[0]);
+            x2=(this.canvas.width-2*8-4)*(lim[1].v2-lim[0])/(lim[2]-lim[0]);
+            x1=Math.round(x1);
+            x2=Math.round(x2);
+            ctx.fillRect(10+x1, 100, 10+x2, this.canvas.height-2*8-50-100);
+            if ( x1 < this.canvas.width/2 ) {ctx.textAlign = "left"}
+            else ctx.textAlign = "right";
+
+            if (lim[5]==undefined){//if there are no strings
+              s=lim[1].v1.toFixed(c)+'-'+lim[1].v2.toFixed(c);
+            } else {
+              s=lim[1].v1.toFixed(c)+'-'+lim[1].v2.toFixed(c);
+            }
+            ctx.fillText(s, x1+8, this.canvas.height-20);
+            break;
+          default:
+            // code block
+        }
+/*
         if (typeof(lim[3])=='number') {
           ctx.fillStyle = this.fgcolor1;
           ctx.textAlign = "left";
@@ -995,7 +1213,9 @@ this.vertCubesMenu=vertCubesMenu;
           if (c<0) c=0;
           ctx.fillText(lim[3+lim[1]], this.canvas.width/2+8, this.canvas.height-20);
         }
+*/
         this.texture.needsUpdate=true;
+        if (vertCubesMenu.limitsFunc!==undefined) vertCubesMenu.limitsFunc();
         if (selectedObject!==undefined) selectedObject.drawParamsInCurrentState();
       }
 
@@ -1015,9 +1235,12 @@ this.vertCubesMenu=vertCubesMenu;
     //initial signal parameters and their values
     const displayFilterParamsrect = new tdisplaySignalParamsrect(boxWidth,boxHeight,   vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-0*vertCubesMenu.dy, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera, vertCubesMenu1,'IIR Chebyshev Filter Params');
     // initial signal
-    const displaySignalRect =         new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-2*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    const displaySignalRect =         new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-vertCubesMenu.dy, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
     // signal after filtering
-    const displayFilteredSignalRect = new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-2*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    const displayFilteredSignalRect = new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-vertCubesMenu.dy, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+    // filter characteristic
+    const displayFilterCharRect = new tdisplaySignalRect(boxWidth, boxHeight, vertCubesMenu.x+vertCubesMenu.dy+2*boxWidth, vertCubesMenu.y-2*vertCubesMenu.dy, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
+
     // initial signal spectrum
     const displaySpectrumRect = new tdisplaySpectrumRect(boxWidth, boxHeight, boxDepth, vertCubesMenu.x+vertCubesMenu.dy+boxWidth, vertCubesMenu.y-4*vertCubesMenu.dy/2, vertCubesMenu.z,'#440044','gold',canvas_width,canvas_height,camera);
 
