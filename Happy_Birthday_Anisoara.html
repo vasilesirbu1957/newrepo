@@ -120,6 +120,7 @@
     //  const texture1 = new THREE.VideoTexture( video1 );
 
     class tSphere {
+/*
       arr;
       bkgcolor;
       linecolor;
@@ -128,7 +129,7 @@
       canvas;
       ctx;
       texture;
-      
+*/
 
       constructor (arr,bkgcolor,linecolor,textcolor,textbkgcolor) {
         this.arr = arr;
@@ -239,7 +240,7 @@
     const texture3 = createCanvasTexture(a3,'#004444','gold','#888844','#444400');
 
     //build a sphere geometry
-    const geometry = new THREE.SphereGeometry(0.8, 64, 64);
+    const geometry = new THREE.SphereGeometry(0.8, 32, 32);
 
     const spheresPole = new THREE.Object3D();
     scene.add(spheresPole);
