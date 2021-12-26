@@ -119,78 +119,36 @@
     //  const video1 = document.getElementById( 'video1' );
     //  const texture1 = new THREE.VideoTexture( video1 );
 
+    const sphereGeometry = new THREE.SphereGeometry(0.8, 32, 32);  //build a sphere geometry
 
     class tSphere {
-      //arr;
-      //bkgcolor;
-      //linecolor;
-      //textcolor;
-      //textbkgcplpr;
-      //canvas;
-      //ctx;
-      //texture;
 
-      constructor (arr,bkgcolor,linecolor,textcolor,textbkgcolor) {
+      constructor (arr, bkgcolor, linecolor, textcolor, textbkgcolor, sphereGeometry, x, z) {
         this.arr = arr;
         this.bkgcolor=bkgcolor;
         this.linecolor=linecolor;
         this.textcolor=textcolor;
-        this.textbkgcolor=textbkgcplpr;
+        this.textbkgcolor=textbkgcolor;
         this.canvas = document.createElement('canvas'); //create a canvas
-        this.ctx = canvas1.getContext('2d'); //create a canvas context
+        this.canvas.width = 1024;   //canvas width
+        this.canvas.height = 512;  //canvas height
+        this.ctx = this.canvas.getContext('2d'); //create a canvas context
         this.texture = new THREE.CanvasTexture(this.canvas);
         this.updateCanvas();
 
-        let canvas1 = this.canvas;
-        let ctx1 = this.ctx;
-        canvas1.width = 1024;   //canvas width
-        canvas1.height = 512;  //canvas height
-        ctx1.fillStyle = bkgcolor;//'#004444'; //'#333333'; //fill color
-        ctx1.fillRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
-        ctx1.strokeStyle = linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
-      //  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
-        const h=arr.length*30/2;
-
-        //ctx1.beginPath();
-        //ctx1.moveTo(0,canvas1.height/2-h-30);
-        //ctx1.lineTo(canvas1.width,canvas1.height/2-h-30);
-        //ctx1.stroke();
-
-        ctx1.beginPath();
-        ctx1.arc(canvas1.width/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-        ctx1.moveTo(canvas1.width*3/8+120,canvas1.height/2);
-        ctx1.arc(canvas1.width*3/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-        ctx1.moveTo(canvas1.width*5/8+120,canvas1.height/2);
-        ctx1.arc(canvas1.width*5/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-        ctx1.moveTo(canvas1.width*7/8+120,canvas1.height/2);
-        ctx1.arc(canvas1.width*7/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
-        ctx1.fillStyle = textbkgcolor;
-        ctx1.fill();
-        ctx1.lineWidth = 1;
-        //ctx1.strokeStyle = '#003300';
-        ctx1.stroke();
-
-        ctx1.font = "40px Times";
-        ctx1.fillStyle = textcolor;//'#888844'; //fill color '#333333'
-        ctx1.textAlign = "center";
-        arr.forEach((str, ndx) => {
-          ctx1.fillText(str, canvas1.width/8, canvas1.height/2+20-h+30*ndx);
-          ctx1.fillText(str, canvas1.width*3/8, canvas1.height/2+20-h+30*ndx);
-          ctx1.fillText(str, canvas1.width*5/8, canvas1.height/2+20-h+30*ndx);
-          ctx1.fillText(str, canvas1.width*7/8, canvas1.height/2+20-h+30*ndx);
-        });
-        this.texture = new THREE.CanvasTexture(canvas1);
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        this.sphere = new THREE.Mesh(sphereGeometry, material); //make a mesh (here - a sphere) from the given material and geometry
+        this.sphere.position.x = x;
+        this.sphere.position.z = z;
       }//tsphere.constructor
 
       updateCanvas(){
         let canvas1 = this.canvas;
         let ctx1 = this.ctx;
         let arr = this.arr;
-        canvas1.width = 1024;   //canvas width
-        canvas1.height = 512;  //canvas height
-        ctx1.fillStyle = bkgcolor;//'#004444'; //'#333333'; //fill color
+        ctx1.fillStyle = this.bkgcolor;//'#004444'; //'#333333'; //fill color
         ctx1.fillRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
-        ctx1.strokeStyle = linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+        ctx1.strokeStyle = this.linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
       //  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
         let h=arr.length*30/2;
 
@@ -208,14 +166,14 @@
         ctx1.moveTo(canvas1.width*7/8+120,canvas1.height/2);
         ctx1.arc(canvas1.width*7/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
 
-        ctx1.fillStyle = textbkgcolor;
+        ctx1.fillStyle = this.textbkgcolor;
         ctx1.fill();
         ctx1.lineWidth = 1;
         //ctx1.strokeStyle = '#003300';
         ctx1.stroke();
 
         ctx1.font = "40px Times";
-        ctx1.fillStyle = textcolor;//'#888844'; //fill color '#333333'
+        ctx1.fillStyle = this.textcolor;//'#888844'; //fill color '#333333'
         ctx1.textAlign = "center";
         arr.forEach((str, ndx) => {
           ctx1.fillText(str, canvas1.width/8, canvas1.height/2+20-h+30*ndx);
@@ -284,27 +242,30 @@
     const a3 = ['Multă','sănătate,','bucurii','și zile','senine!'];
     const texture3 = createCanvasTexture(a3,'#004444','gold','#888844','#444400');
 
-    //build a sphere geometry
-    const geometry = new THREE.SphereGeometry(0.8, 32, 32);
+
 
     const spheresPole = new THREE.Object3D();
     scene.add(spheresPole);
 
-    function makeSphere(geometry, color, x, z, texture) {// make a sphere using the geometry and color
+    function makeSphere(sphereGeometry, color, x, z, texture) {// make a sphere using the geometry and color
       //const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
       //const material = new THREE.MeshPhongMaterial({map: texture1, overdraw: true }); //make a material of the given texture
       const material = new THREE.MeshPhongMaterial({map: texture}); //make a material of the given texture
-      const sphere = new THREE.Mesh(geometry, material); //make a mesh (here - a sphere) from the given material and geometry
-      spheresPole.add(sphere);
+      const sphere = new THREE.Mesh(sphereGeometry, material); //make a mesh (here - a sphere) from the given material and geometry
       sphere.position.x = x;
       sphere.position.z = z;
+      spheresPole.add(sphere);
       return sphere;
     }
 
+    const sphereObj1 = new tSphere(a1,'#440044','gold','#888844','#004444', sphereGeometry, 0, 0);
+    spheresPole.add(sphereObj1.sphere);
+
     const spheres = [ //create 3 spheres and add them to the scene
-      makeSphere(geometry, 0x44aa88, -3/2, -3/(2*Math.sqrt(3)), texture3),
-      makeSphere(geometry, 0x8844aa,  0,  3/Math.sqrt(3), texture1),
-      makeSphere(geometry, 0xaa8844,  3/2, -3/(2*Math.sqrt(3)), texture2),
+      makeSphere(sphereGeometry, 0x44aa88, -3/2, -3/(2*Math.sqrt(3)), texture3),
+      makeSphere(sphereGeometry, 0x8844aa,  0,  3/Math.sqrt(3), texture1),
+      makeSphere(sphereGeometry, 0xaa8844,  3/2, -3/(2*Math.sqrt(3)), texture2),
+      sphereObj1.sphere,
     ];
 
     function resizeRendererToDisplaySize(renderer) {
