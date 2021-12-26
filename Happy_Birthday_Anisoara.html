@@ -137,8 +137,11 @@
         this.textcolor=textcolor;
         this.textbkgcolor=textbkgcplpr;
         this.canvas = document.createElement('canvas'); //create a canvas
-        let canvas1 = this.canvas;
         this.ctx = canvas1.getContext('2d'); //create a canvas context
+        this.texture = new THREE.CanvasTexture(this.canvas);
+        this.updateCanvas();
+
+        let canvas1 = this.canvas;
         let ctx1 = this.ctx;
         canvas1.width = 1024;   //canvas width
         canvas1.height = 512;  //canvas height
@@ -147,6 +150,49 @@
         ctx1.strokeStyle = linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
       //  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
         const h=arr.length*30/2;
+
+        //ctx1.beginPath();
+        //ctx1.moveTo(0,canvas1.height/2-h-30);
+        //ctx1.lineTo(canvas1.width,canvas1.height/2-h-30);
+        //ctx1.stroke();
+
+        ctx1.beginPath();
+        ctx1.arc(canvas1.width/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.moveTo(canvas1.width*3/8+120,canvas1.height/2);
+        ctx1.arc(canvas1.width*3/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.moveTo(canvas1.width*5/8+120,canvas1.height/2);
+        ctx1.arc(canvas1.width*5/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.moveTo(canvas1.width*7/8+120,canvas1.height/2);
+        ctx1.arc(canvas1.width*7/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.fillStyle = textbkgcolor;
+        ctx1.fill();
+        ctx1.lineWidth = 1;
+        //ctx1.strokeStyle = '#003300';
+        ctx1.stroke();
+
+        ctx1.font = "40px Times";
+        ctx1.fillStyle = textcolor;//'#888844'; //fill color '#333333'
+        ctx1.textAlign = "center";
+        arr.forEach((str, ndx) => {
+          ctx1.fillText(str, canvas1.width/8, canvas1.height/2+20-h+30*ndx);
+          ctx1.fillText(str, canvas1.width*3/8, canvas1.height/2+20-h+30*ndx);
+          ctx1.fillText(str, canvas1.width*5/8, canvas1.height/2+20-h+30*ndx);
+          ctx1.fillText(str, canvas1.width*7/8, canvas1.height/2+20-h+30*ndx);
+        });
+        this.texture = new THREE.CanvasTexture(canvas1);
+      }//tsphere.constructor
+
+      updateCanvas(){
+        let canvas1 = this.canvas;
+        let ctx1 = this.ctx;
+        let arr = this.arr;
+        canvas1.width = 1024;   //canvas width
+        canvas1.height = 512;  //canvas height
+        ctx1.fillStyle = bkgcolor;//'#004444'; //'#333333'; //fill color
+        ctx1.fillRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
+        ctx1.strokeStyle = linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+      //  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
+        let h=arr.length*30/2;
 
         //ctx1.beginPath();
         //ctx1.moveTo(0,canvas1.height/2-h-30);
@@ -177,8 +223,8 @@
           ctx1.fillText(str, canvas1.width*5/8, canvas1.height/2+20-h+30*ndx);
           ctx1.fillText(str, canvas1.width*7/8, canvas1.height/2+20-h+30*ndx);
         });
-        this.texture = new THREE.CanvasTexture(canvas1);
-      }//tsphere.constructor
+        this.texture.needsUpdate = true;
+      }//tSphere.updateCanvas
 
     } //tSphere class
 
