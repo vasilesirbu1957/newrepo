@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8" />
+    <title> La multi ani! </title>
+
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- style for body and for audio element -->
+    <style>
+  	  body { margin: 0; }
+    </style>
+
+  </head>
+  <body>
+  <!-- the styles for this page in the local file main.css (in the /static/ directory mandatory!!!)-->
+  <!-- <link href="/static/css/main.css" rel="stylesheet" type="text/css"> -->
+  <!--
+  <div>
+    <table style="width:100%">
+      <tr>
+        <th>
+          <img id='image01' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image02' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image03' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image04' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image05' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <img id='image06' crossOrigin = "Anonymous" src='https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg'  height=128 width=128/>
+        </th>
+        <th>
+          <video id='video1' crossOrigin = "Anonymous" autoplay muted loop src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/video1.mov' type="video/mp4" width="128" height="128">
+        </th>
+        <th>
+          <video id='video2' crossOrigin = "Anonymous" autoplay muted loop src='./video1.mov' type="video/mp4"  width="128" height="128">
+        </th>
+      </tr>
+    </table>
+  </div>
+  -->
+  <!-- the main.js module of our 3d application for this page -->
+
+  <audio controls loop >
+    <source src='https://raw.githubusercontent.com/vasilesirbu1957/newrepo/main/Happy-Birthday-To-You-Traditional.mp3' type='audio/mpeg' >
+    Your browser does not support the audio tag.
+  </audio>
+
+  <script type="module" crossOrigin = "Anonymous" >
+
+  import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+  import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
+
+  function main() {
+    const canvas = document.querySelector('#myCanvas');
+    const renderer = new THREE.WebGLRenderer({canvas},{ antialias: true });
+    renderer.physicallyCorrectLights = true;
+    renderer.setSize(window.innerWidth, window.innerWidth * 0.5); //square size width=100%, height=50% of width
+
+    //camera
+    const fov = 35;    // camera field of view in degrees
+    const aspect = 2;  // the canvas default aspect ratio
+    const near = 0.5;  // the camera near distance (frustrum start)
+    const far = 100;    // the camera far distance (frustrum end)
+    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera.position.set(0, 0, 5);
+
+    // orbit controls  - rotate and zoom in/out
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, 0, 0); //move the scene up (to -0.5 on Y coord)
+    controls.update();
+    //limit zoom in and out when using THREE.OrbitControls with perspective camera:
+    controls.minDistance = 5.0;
+    controls.maxDistance = 60.0;
+
+    //scene
+    const scene = new THREE.Scene();
+    //scene.background = new THREE.Color('skyblue'); //scene color
+    scene.add(camera);
+
+    //cube texture for the scene background
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      'https://threejsfundamentals.org/threejs/resources/images/flower-1.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-2.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-3.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-4.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-5.jpg',
+      'https://threejsfundamentals.org/threejs/resources/images/flower-6.jpg',
+    ]);
+    scene.background = texture; //set background texture (cube texture)
+    // put the camera on a pole (parent it to an object)
+    // so we can spin the pole to move the camera around the scene
+    const cameraPole = new THREE.Object3D();
+    scene.add(cameraPole);
+    cameraPole.add(camera);
+
+    {//hemisphere light to have light from everywhere
+      const skyColor = 0xFFFFFF; //0xB1E1FF;  // light blue
+      const groundColor = 0xB97A20;  // brownish orange
+      const intensity = 3;
+      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+      scene.add(light); //add this light to the scene
+    }
+    {//directional light to have light from the given direction
+      const color = 0xFFFFFF; //white color
+      const intensity = 3;    //light intensity
+      const light = new THREE.DirectionalLight(color, intensity);
+      light.position.set(0, 0, 5);
+      //scene.add(light); //add light to scene - when camera moves, the light remains at its position
+      camera.add(light); //add light to camera, when the camera moves - the light will move with the camera
+    }
+
+    //  const video1 = document.getElementById( 'video1' );
+    //  const texture1 = new THREE.VideoTexture( video1 );
+
+    const sphereGeometry = new THREE.SphereGeometry(0.8, 32, 32);  //build a sphere geometry
+
+    class tSphere {
+
+      constructor (arr, bkgcolor, linecolor, textcolor, textbkgcolor, sphereGeometry, x, z) {
+        this.arr = arr;
+        this.bkgcolor=bkgcolor;
+        this.linecolor=linecolor;
+        this.textcolor=textcolor;
+        this.textbkgcolor=textbkgcolor;
+        this.canvas = document.createElement('canvas'); //create a canvas
+        this.canvas.width = 1024;   //canvas width
+        this.canvas.height = 512;  //canvas height
+        this.ctx = this.canvas.getContext('2d'); //create a canvas context
+        this.texture = new THREE.CanvasTexture(this.canvas);
+        this.updateCanvas();
+
+        let material = new THREE.MeshPhongMaterial({map: this.texture}); //make a material of the given texture
+        this.sphere = new THREE.Mesh(sphereGeometry, material); //make a mesh (here - a sphere) from the given material and geometry
+        this.sphere.position.x = x;
+        this.sphere.position.z = z;
+      }//tsphere.constructor
+
+      updateCanvas(){
+        let canvas1 = this.canvas;
+        let ctx1 = this.ctx;
+        let arr = this.arr;
+        ctx1.fillStyle = this.bkgcolor;//'#004444'; //'#333333'; //fill color
+        ctx1.fillRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
+        ctx1.strokeStyle = this.linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+      //  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
+        let h=arr.length*30/2;
+        let dh = 60;
+        ctx1.beginPath();
+        ctx1.moveTo(0,canvas1.height/2-h-dh);
+        for (let i=0; i<1024; i++) ctx1.lineTo(i,canvas1.height/2-h-dh+10*Math.sin(80*Math.PI*i/1024));
+        ctx1.stroke();
+        ctx1.beginPath();
+        ctx1.moveTo(0,canvas1.height/2-h-dh);
+        for (let i=0; i<1024; i++) ctx1.lineTo(i,canvas1.height/2-h-dh-10*Math.sin(80*Math.PI*i/1024));
+        ctx1.stroke();
+
+        ctx1.beginPath();
+        ctx1.moveTo(0,canvas1.height/2+h+dh);
+        for (let i=0; i<1024; i++) ctx1.lineTo(i,canvas1.height/2+h+dh+10*Math.sin(80*Math.PI*i/1024));
+        ctx1.stroke();
+        ctx1.beginPath();
+        ctx1.moveTo(0,canvas1.height/2+h+dh);
+        for (let i=0; i<1024; i++) ctx1.lineTo(i,canvas1.height/2+h+dh-10*Math.sin(80*Math.PI*i/1024));
+        ctx1.stroke();
+/*
+        ctx1.beginPath();
+        ctx1.moveTo(0,canvas1.height/2-h-dh);
+        ctx1.lineTo(canvas1.width,canvas1.height/2-h-dh);
+        ctx1.moveTo(0,canvas1.height/2+h+dh);
+        ctx1.lineTo(canvas1.width,canvas1.height/2+h+dh);
+        ctx1.stroke();
+*/
+        ctx1.beginPath();
+        ctx1.arc(canvas1.width/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.moveTo(canvas1.width*3/8+120,canvas1.height/2);
+        ctx1.arc(canvas1.width*3/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.moveTo(canvas1.width*5/8+120,canvas1.height/2);
+        ctx1.arc(canvas1.width*5/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+        ctx1.moveTo(canvas1.width*7/8+120,canvas1.height/2);
+        ctx1.arc(canvas1.width*7/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+
+        ctx1.fillStyle = this.textbkgcolor;
+        ctx1.fill();
+        ctx1.lineWidth = 1;
+        //ctx1.strokeStyle = '#003300';
+        ctx1.stroke();
+
+        ctx1.font = "40px Times";
+        ctx1.fillStyle = this.textcolor;//'#888844'; //fill color '#333333'
+        ctx1.textAlign = "center";
+        arr.forEach((str, ndx) => {
+          ctx1.fillText(str, canvas1.width/8, canvas1.height/2+20-h+30*ndx);
+          ctx1.fillText(str, canvas1.width*3/8, canvas1.height/2+20-h+30*ndx);
+          ctx1.fillText(str, canvas1.width*5/8, canvas1.height/2+20-h+30*ndx);
+          ctx1.fillText(str, canvas1.width*7/8, canvas1.height/2+20-h+30*ndx);
+        });
+        this.texture.needsUpdate = true;
+      }//tSphere.updateCanvas
+
+    } //tSphere class
+
+/*
+    function createCanvasTexture(arr,bkgcolor,linecolor,textcolor,textbkgcolor) { //texture from a canvas
+      var canvas1 = document.createElement('canvas'); //create a canvas
+      var ctx1 = canvas1.getContext('2d'); //create a canvas context
+      canvas1.width = 1024;   //canvas width
+      canvas1.height = 512;  //canvas height
+      ctx1.fillStyle = bkgcolor;//'#004444'; //'#333333'; //fill color
+      ctx1.fillRect(0, 0, canvas1.width, canvas1.height); //fill rectangle
+      ctx1.strokeStyle = linecolor;//'gold'; //"white";ctx1.fillText("sincere", canvas1.width/2, canvas1.height/2-20);
+    //  ctx1.strokeRect(8, 8, canvas1.width-2*8, canvas1.height-2*8);
+
+      const h=arr.length*30/2;
+
+      //ctx1.beginPath();
+      //ctx1.moveTo(0,canvas1.height/2-h-30);
+      //ctx1.lineTo(canvas1.width,canvas1.height/2-h-30);
+      //ctx1.stroke();
+
+      ctx1.beginPath();
+      ctx1.arc(canvas1.width/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+      ctx1.moveTo(canvas1.width*3/8+120,canvas1.height/2);
+      ctx1.arc(canvas1.width*3/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+      ctx1.moveTo(canvas1.width*5/8+120,canvas1.height/2);
+      ctx1.arc(canvas1.width*5/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+      ctx1.moveTo(canvas1.width*7/8+120,canvas1.height/2);
+      ctx1.arc(canvas1.width*7/8, canvas1.height/2, 120, 0, 2 * Math.PI); //x,y,radius, startAngle, endAngle
+
+
+      ctx1.fillStyle = textbkgcolor;
+      ctx1.fill();
+      ctx1.lineWidth = 1;
+      //ctx1.strokeStyle = '#003300';
+      ctx1.stroke();
+
+      ctx1.font = "40px Times";
+      ctx1.fillStyle = textcolor;//'#888844'; //fill color '#333333'
+      ctx1.textAlign = "center";
+      arr.forEach((str, ndx) => {
+        ctx1.fillText(str, canvas1.width/8, canvas1.height/2+20-h+30*ndx);
+        ctx1.fillText(str, canvas1.width*3/8, canvas1.height/2+20-h+30*ndx);
+        ctx1.fillText(str, canvas1.width*5/8, canvas1.height/2+20-h+30*ndx);
+        ctx1.fillText(str, canvas1.width*7/8, canvas1.height/2+20-h+30*ndx);
+      });
+
+      const texture = new THREE.CanvasTexture(canvas1);
+      return texture;
+    }
+*/
+    const a1 = ["La mulți","ani,","draga","noastră","Cecilia!"];
+    //const texture1 = createCanvasTexture(a1,'#440044','gold','#888844','#004444');
+    const a2 = ["Cele mai","sincere","felicitări","cu ziua","de naștere!"];
+    //const texture2 = createCanvasTexture(a2,'#444400','gold','#888844','#440044');
+    const a3 = ['Multă','sănătate,','bucurii','succese și','realizări!'];
+    //const texture3 = createCanvasTexture(a3,'#004444','gold','#888844','#444400');
+
+    const spheresPole = new THREE.Object3D();
+    scene.add(spheresPole);
+/*
+    function makeSphere(sphereGeometry, color, x, z, texture) {// make a sphere using the geometry and color
+      //const material = new THREE.MeshPhongMaterial({color}); //make a material of the given color
+      //const material = new THREE.MeshPhongMaterial({map: texture1, overdraw: true }); //make a material of the given texture
+      const material = new THREE.MeshPhongMaterial({map: texture}); //make a material of the given texture
+      const sphere = new THREE.Mesh(sphereGeometry, material); //make a mesh (here - a sphere) from the given material and geometry
+      sphere.position.x = x;
+      sphere.position.z = z;
+      spheresPole.add(sphere);
+      return sphere;
+    }
+*/
+    const sphereObj1 = new tSphere(a1,'#444400','gold','#888844','#440044', sphereGeometry, 0,  3/Math.sqrt(3));
+    spheresPole.add(sphereObj1.sphere);
+    const sphereObj2 = new tSphere(a2,'#004444','gold','#888844','#444400', sphereGeometry, 3/2, -3/(2*Math.sqrt(3)));
+    spheresPole.add(sphereObj2.sphere);
+    const sphereObj3 = new tSphere(a3,'#440044','gold','#888844','#004444', sphereGeometry, -3/2, -3/(2*Math.sqrt(3)));
+    spheresPole.add(sphereObj3.sphere);
+
+    const spheres = [ //create 3 spheres and add them to the scene
+      //makeSphere(sphereGeometry, 0x44aa88, -3/2, -3/(2*Math.sqrt(3)), texture3),
+      //makeSphere(sphereGeometry, 0x8844aa,  0,  3/Math.sqrt(3), texture1),
+      //makeSphere(sphereGeometry, 0xaa8844,  3/2, -3/(2*Math.sqrt(3)), texture2),
+      sphereObj1.sphere,
+      sphereObj2.sphere,
+      sphereObj3.sphere,
+    ];
+
+    function resizeRendererToDisplaySize(renderer) {
+      const canvas = renderer.domElement;
+      const width = window.innerWidth; //canvas.clientWidth;
+      const height = window.innerWidth * 0.5; //canvas.clientHeight;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, true);
+      }
+      return needResize;
+    }
+
+    function render(time) { //render function rotates cubes and renderer displays them on screen
+      time *= 0.001;  // convert time to seconds
+
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+
+      spheres.forEach((sphere, ndx) => {
+        const speed = 0.2 + ndx * .00125;
+        const rot = time * speed;
+        sphere.rotation.z = rot;
+        sphere.rotation.y = rot;
+        sphere.rotation.x = rot;
+      });
+
+      cameraPole.rotation.y = -time * 0.05; //rotate camera
+      spheresPole.rotation.y = -time * 0.15; //rotate 3 cubes
+
+      renderer.render(scene, camera); //renderer renders the given scene using given camera
+      requestAnimationFrame(render);  //requests a new frame using the render function and exits the function
+    }
+    requestAnimationFrame(render); //requests the first frame using the render function
+  }
+  main();
+
+  </script>
+<!--
+  <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
+-->
+  <canvas id="myCanvas">  </canvas>
+
+</body>
+
+</html>
