@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title> Chebyshev Filter </title>
+    <title> Hadamard matrices </title>
 
   <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
 
@@ -97,6 +97,11 @@
 
     //directional light to have light from the given direction
     const Dlight = createDirectionalLight({color:0xFFFFFF, intensity:3, x:0, y:0, z:5}, camera);
+
+let Had=1;
+//console.log('------------fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
+console.log('------------Had=',Had);
+
 
 function getpolepair(fc,lh,pr,np,p){
   //fc the cutoff frequency in range 0 - 0.5 of sampling frequency; for a cutoff frequency of 0.1*sf  just enter fc=0.1
@@ -1374,10 +1379,6 @@ document.onmousedown = function(e){
     }
 
     requestAnimationFrame(render); //requests the first frame using the render function
-
-    let Had=1;
-    //console.log('------------fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
-    console.log('------------Had=',Had);
 
 <!--
   <h1> <a href="https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html"> https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html </a> threejs fundamentals </h1>
