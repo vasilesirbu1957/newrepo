@@ -465,6 +465,11 @@ return {a,b}
     const boxHeight = 1;
     const boxDepth = 2.5;
 
+    //Hadamard matrices
+    const Had=[1,-1,-1,1];
+    console.log('Had=',Had);
+    //Hadamard matrices
+
 
     class tdisplaySpectrumRect {
 
@@ -1254,8 +1259,7 @@ class tdisplaySignalParamsrect {
     }
 
     requestAnimationFrame(render); //requests the first frame using the render function
-    const Had=[1,-1,-1,1];
-    console.log('Had=',Had);
+
   }
 
   main();
