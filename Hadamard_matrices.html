@@ -104,7 +104,7 @@ function getpolepair(fc,lh,pr,np,p){
   //pr indicates the percent ripple in range 0-29 that corresponds to 9-29% ripple in the passband
   //np the number of poles (even number from 2 to 20)
   //p is the poles pair number from 0 to np/2
-//console.log('inside getpolepair');
+
   let c={a0:0,a1:0,a2:0,b1:0,b2:0};// the coefficients for the current poles pair will be kept here
   let rp,ip;//real and imaginary parts of poles
   let es,vx,kx,t,w,m,d,k;
@@ -121,7 +121,7 @@ function getpolepair(fc,lh,pr,np,p){
     rp=rp*((Math.exp(vx)-Math.exp(-vx))/2)/kx;
     ip=ip*((Math.exp(vx)+Math.exp(-vx))/2)/kx;
   }
-//console.log('----rp=',rp,'ip=',ip);
+
   //s-domain to z-domain conversion
   t=2*Math.tan(0.5);
   w=2*Math.PI*fc;
@@ -132,7 +132,7 @@ function getpolepair(fc,lh,pr,np,p){
   x2=(t**2)/d;
   y1=(8-2*m*t**2)/d;
   y2=(-4-4*rp*t-m*t**2)/d;
-//console.log('t=',t,'w=',w,'m=',m,'d=',d,'x0=',x0,'x1=',x1,'x2=',x2,'y1=',y1,'y2=',y2);
+
   //Lowpass to lopass or lowpass to highpass transform
   if (lh==1) {k=-Math.cos(w/2+1/2)/Math.cos(w/2-1/2)}
   else if (lh==0) {k=Math.sin(1/2-w/2)/Math.sin(1/2+w/2)};
@@ -146,12 +146,11 @@ function getpolepair(fc,lh,pr,np,p){
     c.a1=-c.a1;
     c.b1=-c.b1;
   }
-//console.log('c=',c);
-//console.log('exit getpolepair');
+
   return c;
 }
 
-let printcoeff=1;
+let printcoeff=0;//=1;
 
 function chebyshev1IIR(fc,lh,pr,np){
   //fc - cutoff frequency 0.0-0.5;
@@ -173,7 +172,7 @@ if (printcoeff) console.log('------------fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
   //let c={a0:0,a2:0,a2:0,b1:0,b2:0};
   for (let p=1; p<np/2+1; p++){//loop for each pole pair
     let c = getpolepair(fc,lh,pr,np,p);
-//console.log('c=',c);
+
     for (let i=0;i<23;i++){
       ta[i]=a[i];
       tb[i]=b[i];
@@ -253,8 +252,8 @@ return {a,b}
       let b=ab.b;
 
   if (printcoeff){
-  console.log('parametrii filtrului: fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
-  console.log('ab.a=',a,'ab.b=',b);
+    console.log('parametrii filtrului: fc=',fc,'lh=',lh,'pr=',pr,'np=',np);
+    console.log('ab.a=',a,'ab.b=',b);
   printcoeff=0;
   }
       let num_coeff = np;
@@ -351,7 +350,6 @@ return {a,b}
             func : (mod)=>{this.drawCanvas(i,mod); this.cubes[i].userData.mod=mod; this.textures[i].needsUpdate=true;},
 
             pointerDown : (uv)=>{
-//console.log('pointerDown-----point=',uv);
               if (this.previousSelectedCubeIndex!==undefined) this.cubes[this.previousSelectedCubeIndex].userData.unselectTexture();//if (this.previousSelectedCube) this.previousSelectedCube.userData.unselectTexture();
               if (i != this.previousSelectedCubeIndex ) {//if (this.cubes[i] != this.previousSelectedCube ) {
                 this.cubes[i].userData.selectTexture();
@@ -656,29 +654,6 @@ return {a,b}
             ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
           }
         }
-/*
-//console.log('noiseCutoff=',noiseCutoffFr);
-        let ph=Math.floor(2*Math.PI*Math.random());//sh is random from 0 to 2pi
-        let m=Math.random()*0.05;
-        if ( displaySignalParamsrect.getCurrentValue(3) == 0 ){//noise type == Low_fr
-          for (let i = 0; i < buflen; i++) {
-            isign[i]=isin[i] + noise_ampl*Math.sin(ph+Math.PI*i*(0.95+m)*(noiseCutoffFr*i/buflen));
-            ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
-          }
-        } else {//noise type == High_fr
-          for (let i = 0; i < buflen; i++) {
-            isign[i]=isin[i] + noise_ampl*Math.sin(ph+Math.PI*i*(0.95+m)*(noiseCutoffFr*i/buflen));
-            ctx.lineTo((i+10),ym1 - isign[i]);
-          }
-        }
-*/
-  //----------------------------------
-/*
-        for (let i = 0; i < buflen; i++) {//Add noise to the signal
-          isign[i]=isin[i] + Math.floor((0.5-Math.random()) * 2*noise_ampl);//add noise th the signal
-          ctx.lineTo((i+10),ym1 - isign[i]); //draw the signal with noise
-        }
-*/
 
         ctx.stroke();
         this.texture.needsUpdate=true;
@@ -969,7 +944,6 @@ class tdisplaySignalParamsrect {
 
         plane.userData={
           pointerDown : (uv)=>{
-          //console.log('point=',point);
           if (this.cubeindex !== undefined) {
             let lim=this.vertCubesMenu.limits[this.cubeindex];
 //vertCubesMenu.setParamLimits( [[0, 5, 50, 0.1, 0],[0, 300, 300,   1, 1],[0, 35, 50, 0.1, 2],[0, 1, 1, 1, 2,'Low-fr','High-fr']]);
@@ -993,34 +967,8 @@ class tdisplaySignalParamsrect {
               }
             }
 
-  /*
-            if (lim[3]==0) {//integer values, step>=1
-              if (x<lim[1]) {lim[1]=Math.floor(x)}
-              else lim[1]=Math.ceil(x);
-            }
-            else if (lim[3]==1) {//one decimal values, step>=0.1
-              if (x<lim[1]) {lim[1]=Math.floor(x*10)/10}
-              else lim[1]=Math.ceil(x*10)/10;
-            }
-            else if (lim[3]==2) {//two decimal values, step>=0.01
-              if (x<lim[1]) {lim[1]=Math.floor(x*100)/100}
-              else lim[1]=Math.ceil(x*100)/100;
-            }
-            else if (lim[3]==-2) {//integer values, step is even,>=2
-              if (x<lim[1]) {
-                lim[1]=Math.floor(x);
-                if (lim[1]%2) lim[1]--;
-              }
-              else {
-                lim[1]=Math.ceil(x);
-                if (lim[1]%2) lim[1]++;
-              }
-            } else lim[1]=Math.round(x);
-  */
-  //console.log('----------------lim[1]=',lim[1],'x=',x);
             this.vertCubesMenu.limits[this.cubeindex]=lim;
 
-    //console.log('pointewrDown lim=',lim,' uv.x=',uv.x);
             if (selectedObject==displaySignalParamsrect)
             switch(this.cubeindex) {
               case 0:
@@ -1036,8 +984,10 @@ class tdisplaySignalParamsrect {
                 break;
               default:
                 // code block
-            } else if (selectedObject==displayFilterParamsrect)
-    printcoeff=1;//to print filter coeff with console.log()
+            }
+/*
+            else if (selectedObject==displayFilterParamsrect)
+    printcoeff=0;//use 1 to print filter coeff with console.log()
             switch(this.cubeindex) {
               case 0:
                 console.log('case 0');
@@ -1055,8 +1005,8 @@ class tdisplaySignalParamsrect {
               default:
                 // code block
             }
+*/
             this.drawParameter(this.cubeindex,this.vertCubesMenu);
-//console.log('parameter index=',this.cubeindex,'this.canvas.getBoundingClientRect()=', this.canvas.getBoundingClientRect());
             } else console.log('parameter not selected!!!');
           }
         }
@@ -1101,7 +1051,7 @@ class tdisplaySignalParamsrect {
 
         switch(lim[4]) {
           case 0://single value
-            console.log('case 0');
+            //console.log('case 0');
             ctx.fillStyle = this.fgcolor;
 
             let numb=(lim[2]-lim[0])/lim[3];
@@ -1123,12 +1073,10 @@ class tdisplaySignalParamsrect {
             }
             break;
           case 1://left range
-            console.log('case 1');
+            //console.log('case 1');
             ctx.fillStyle = this.fgcolor;
             x=(this.canvas.width-20)*(lim[1]-lim[0])/(lim[2]-lim[0]);
-    //console.log('-------------x=',x,' lim=',lim);
             x=Math.round(x);
-    //console.log('x=',x);
             ctx.fillRect(10, 100, x, this.canvas.height-2*8-50-100);
 
             if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
@@ -1142,12 +1090,10 @@ class tdisplaySignalParamsrect {
             // code block
             break;
           case 2://right range
-            console.log('case 2');
+            //console.log('case 2');
             ctx.fillStyle = this.fgcolor;
             x=(this.canvas.width-20)*(lim[1]-lim[0])/(lim[2]-lim[0]);
-    //console.log('-------------x=',x,' lim=',lim);
             x=Math.round(x);
-    //console.log('x=',x);
             ctx.fillRect(10+x, 100, this.canvas.width-x-20, this.canvas.height-2*8-50-100);
 
             if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
@@ -1160,7 +1106,7 @@ class tdisplaySignalParamsrect {
             }
             break;
           case 3://double sided range
-            console.log('case 3');
+            //console.log('case 3');
             ctx.fillStyle = this.fgcolor;
             x1=(this.canvas.width-2*8-4)*(lim[1].v1-lim[0])/(lim[2]-lim[0]);
             x2=(this.canvas.width-2*8-4)*(lim[1].v2-lim[0])/(lim[2]-lim[0]);
@@ -1180,40 +1126,6 @@ class tdisplaySignalParamsrect {
           default:
             // code block
         }
-/*
-        if (typeof(lim[3])=='number') {
-          ctx.fillStyle = this.fgcolor1;
-          ctx.textAlign = "left";
-          ctx.fillText(lim[0], 11, 50+40); //output minimal value
-          ctx.textAlign = "right";
-          ctx.fillText(lim[2], this.canvas.width-11, 50+40);//output maximal value
-
-          ctx.fillStyle = this.fgcolor;
-          let x=(this.canvas.width-2*8-4)*(lim[1]-lim[0])/(lim[2]-lim[0]);
-//console.log('-------------x=',x,' lim=',lim);
-          x=Math.round(x);
-//console.log('x=',x);
-          ctx.fillRect(8+2, 100, x, this.canvas.height-2*8-50-100);
-          if ( x < this.canvas.width/2 ) {ctx.textAlign = "left"}
-          else ctx.textAlign = "right";
-          let c=lim[3];
-          if (c<0) c=0;
-          ctx.fillText(lim[1].toFixed(c), x+8, this.canvas.height-20);
-        } else {
-          ctx.fillStyle = this.fgcolor1;
-          ctx.textAlign = "left";
-          ctx.fillText(lim[3], 11, 50+40); //output minimal value
-          ctx.textAlign = "right";
-          ctx.fillText(lim[4], this.canvas.width-11, 50+40);//output maximal value
-          ctx.fillStyle = this.fgcolor;
-          if (lim[1]==0) {ctx.fillRect(8+2, 100, this.canvas.width/2, this.canvas.height-2*8-50-100)}
-          else ctx.fillRect(10+this.canvas.width/2, 100, this.canvas.width/2-2*10, this.canvas.height-2*8-50-100)
-          ctx.textAlign = "center";
-          let c=lim[3];
-          if (c<0) c=0;
-          ctx.fillText(lim[3+lim[1]], this.canvas.width/2+8, this.canvas.height-20);
-        }
-*/
         this.texture.needsUpdate=true;
         if (vertCubesMenu.limitsFunc!==undefined) vertCubesMenu.limitsFunc();
         if (selectedObject!==undefined) selectedObject.drawParamsInCurrentState();
@@ -1256,10 +1168,7 @@ class tdisplaySignalParamsrect {
         // get the list of objects the ray intersected
         const intersectedObjects = this.raycaster.intersectObjects(camera.children);
         if (intersectedObjects.length){
-//console.log('intersectedObjects.length=',intersectedObjects.length)
-//console.log('intersectedObjects[0].object.visible=',intersectedObjects[0].object.visible);
           if (intersectedObjects[0].object.visible)   intersectedObjects[0].object.userData.pointerDown(intersectedObjects[0].uv);
-
         }
       }
     }
@@ -1281,30 +1190,7 @@ class tdisplaySignalParamsrect {
       pickPosition.y = (pos.y / canvas.height) * -2 + 1;  // note we flip Y
       //pickPosition is now in normalized form (between -1 and 1 and the left bottom point is (-1,-1) while the top right point is (1,1))
     }
-/*
-    function clearPickPosition() {
-      // unlike the mouse which always has a position
-      // if the user stops touching the screen we want
-      // to stop picking. For now we just pick a value
-      // unlikely to pick something
-      pickPosition.x = -100000;
-      pickPosition.y = -100000;
-    }
 
-    window.addEventListener('mouseenter', setPickPosition);   //
-    window.addEventListener('touchstart', (event) => {       //'touchstart' event occurs when a finger is placed on the window
-      event.preventDefault(); // prevent the window from scrolling
-      setPickPosition(event.touches[0]);
-    }, {passive: false});
-*/
-/*
-var cursorX;
-var cursorY;
-document.onmousedown = function(e){
-    cursorX = e.pageX;
-    cursorY = e.pageY;
-    console.log(cursorX,' ',cursorY)
-*/
     window.addEventListener('pointerdown', (event) => {        //'touchmove' event occurs when a finger is dragged across the window
       setPickPosition(event);
       pickHelper.pick(pickPosition, scene, camera/*, time*/);
@@ -1318,12 +1204,6 @@ document.onmousedown = function(e){
       setPickPosition(event.touches[0]);
       pickHelper.pick(pickPosition, scene, camera/*, time*/);
     });
-/*
-    //window.addEventListener('mouseout',   clearPickPosition);   //'mouseout' event occurs when a user moves the mouse pointer out of the window, or out of one of its children
-    window.addEventListener('mouseleave', clearPickPosition);  //'mouseleave' event occurs when the pointer is moved out of the window
-    window.addEventListener('mouseout',   clearPickPosition);
-    window.addEventListener('touchend',   clearPickPosition);  //'touchend' event occurs when a finger is removed from the window
-*/
 
     function resizeRendererToDisplaySize(renderer) {
       const canvas = renderer.domElement;
