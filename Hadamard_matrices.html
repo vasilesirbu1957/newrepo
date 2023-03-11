@@ -466,8 +466,15 @@ return {a,b}
     const boxDepth = 2.5;
 
     //Hadamard matrices
-    const Had=[1,-1,-1,1];
-    console.log('Had=',Had);
+    let d=11;
+    const Had1=[];
+    const Had2=[];
+    for (let i = 0; i < d; i++) {
+      Had1[i]=i;
+      Had2[i]=(2*i+1)%d;
+    }
+    console.log('Had1=',Had1);
+    console.log('Had2=',Had2);
     //Hadamard matrices
 
 
