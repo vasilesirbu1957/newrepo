@@ -493,15 +493,15 @@ return {a,b}
     }
     let ind1=0;
     let ind2=-1;
-    Hadp.add(ind1);
+    Hadp.push(ind1);
     while (ind2 != 0) {
       ind2=Had2[ind1];
-      Hadm.add(ind2);
-      console.log('add to Hadm=',ind2);
+      Hadm.push(ind2);
+      console.log('push to Hadm=',ind2);
       ind1=ind2;
       ind2=Had2[ind1];
-      Hadp.add(ind2);
-      console.log('add to Hadp=',ind2);
+      Hadp.push(ind2);
+      console.log('push to Hadp=',ind2);
       ind1=ind2;
     }
     console.log('Hadp=',Hadp);
