@@ -493,17 +493,25 @@ return {a,b}
     let ind1=0;
     let ind2=-1;
     Hadp.push(ind1);
+    let p0m1=1;
 
-    while (ind2 != 0) {
+    do {
       ind2=Had2[ind1];
-      Hadm.push(ind2);
-      console.log('push to Hadm=',ind2);
+      if (p0m1==1) {
+        Hadm.push(ind2);
+        console.log('push to Hadm=',ind2,' p0m1=',p0m1);
+        p0m1=0;
+      }
+      else {
+        Hadp.push(ind2);
+        console.log('push to Hadp=',ind2,' p0m1=',p0m1);
+        p0m1=1;
+      }
       ind1=ind2;
-      ind2=Had2[ind1];
-      Hadp.push(ind2);
-      console.log('push to Hadp=',ind2);
-      ind1=ind2;
-    }
+    } while (ind2 != 0);
+
+
+
     console.log('Hadp=',Hadp);
     console.log('Hadm=',Hadm);
     /*
