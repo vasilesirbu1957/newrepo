@@ -513,9 +513,11 @@ return {a,b}
 
       for (let ind1=1; ind1<d; ind1++) {
         ind2=Had2[ind1];
-        if (!(Hadp.includes(ind2) || Hadm.includes(ind2))) break;
+        if (!(Hadp.includes(ind2) || Hadm.includes(ind2))) {
+          val1=ind2;
+          break;
+        }
       }
-      val1=ind2;
     } while (ind1==d-1);
 
     if (p0m1==1) {
