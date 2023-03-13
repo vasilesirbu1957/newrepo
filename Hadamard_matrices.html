@@ -495,6 +495,7 @@ return {a,b}
     Hadp.push(ind2);
     let p0m1=1;
     let val1=0;
+    let ind=0;
     ind2=Had2[ind2];
     do {
       do {
@@ -515,10 +516,11 @@ return {a,b}
         ind2=Had2[ind1];
         if (!(Hadp.includes(ind2) || Hadm.includes(ind2))) {
           val1=ind2;
+          ind=ind1;
           break;
         }
       }
-    } while (ind1==d-1);
+    } while (ind==(d-1));
 
     if (p0m1==1) {
       Hadm.push(ind2);
@@ -537,12 +539,12 @@ return {a,b}
     let Had1=[];
     Had1.length = d;
     for (let i=0; i<Hadp.length; i++) {
-      ind1=Hadp[i];
-      Had1[ind1]=1;
+      ind=Hadp[i];
+      Had1[ind]=1;
     }
     for (let i=0; i<Hadm.length; i++) {
-      ind1=Hadm[i];
-      Had1[ind1]=-1;
+      ind=Hadm[i];
+      Had1[ind]=-1;
     }
     console.log('Had1=',Had1);
     /*
