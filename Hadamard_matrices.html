@@ -518,7 +518,10 @@ return {a,b}
         if (!(Hadp.includes(ind2) || Hadm.includes(ind2))) {
           val1=ind2;
           ind=ind1;
+          console.log('element ',ind2,' is not included in Hadp or Hadm');
           break;
+        } else {
+          console.log('element ',ind2,' is included in Hadp or Hadm');
         }
       }
     } while (ind==(d-1));
