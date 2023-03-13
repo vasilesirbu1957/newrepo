@@ -547,15 +547,38 @@ return {a,b}
 
     let Had1=[];
     Had1.length = d;
-    for (let i=0; i<Hadp.length; i++) {
-      ind=Hadp[i];
-      Had1[ind]=1;
+    if (Hadp.length < Hadm.length) {
+      for (let i=0; i<Hadp.length; i++) {
+        ind=Hadp[i];
+        Had1[ind]=1;
+      }
+      for (let i=0; i<Hadm.length; i++) {
+        ind=Hadm[i];
+        Had1[ind]=-1;
+      }
+    } else {
+      for (let i=0; i<Hadp.length; i++) {
+        ind=Hadp[i];
+        Had1[ind]=-1;
+      }
+      for (let i=0; i<Hadm.length; i++) {
+        ind=Hadm[i];
+        Had1[ind]=1;
+      }
     }
-    for (let i=0; i<Hadm.length; i++) {
-      ind=Hadm[i];
-      Had1[ind]=-1;
-    }
+
     console.log('Had1=',Had1);
+
+    for (let i=1; i<Had1.length; i++) {
+      let s=0;
+      for (let j=0; i<Had1.length; i++) {
+        s=s+Had1[j]*Had1[(j+i)%d];
+      }
+      console.log('s[',i']=',s);
+    }
+
+
+
     /*
     cubes.forEach((cube, ndx) => {
       const speed = 0.2 + ndx * .00125;
