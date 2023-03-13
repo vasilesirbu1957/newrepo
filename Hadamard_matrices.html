@@ -513,6 +513,7 @@ return {a,b}
         ind2=Had2[ind2];
         console.log('do while ',ind2,' != ',val1);
       } while (ind2 != val1);
+
       console.log('for cycle');
       for (let ind1=1; ind1<d; ind1++) {
         ind2=Had2[ind1];
@@ -525,7 +526,8 @@ return {a,b}
           console.log('element ',ind2,' is included in Hadp or Hadm');
         }
       }
-    } while (ind==(d-1));
+      console.log(' outer do while cycle, ind=',ind,' d-1=',d-1);
+    } while (ind != (d-1));
 
     if (p0m1==1) {
       Hadm.push(ind2);
