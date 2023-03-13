@@ -487,31 +487,36 @@ return {a,b}
     const Had2=[];
     const Hadp=[];
     const Hadm=[];
-    console.log('Dimension=',d);
+    console.log('--Dimension=',d);
     for (let i = 0; i < d; i++) {
       Had2[i]=(2*i+1)%d;
     }
-    let ind1=0;
-    let ind2=-1;
-    Hadp.push(ind1);
+    let ind2=0;
+    Hadp.push(ind2);
     let p0m1=1;
-
+    let val1=0;
+    ind2=Had2[ind2];
     do {
-      ind2=Had2[ind1];
-      if (p0m1==1) {
-        Hadm.push(ind2);
-        console.log('push to Hadm=',ind2,' p0m1=',p0m1);
-        p0m1=0;
-      }
-      else {
-        Hadp.push(ind2);
-        console.log('push to Hadp=',ind2,' p0m1=',p0m1);
-        p0m1=1;
-      }
-      ind1=ind2;
-    } while (ind2 != 0);
+      do {
+        if (p0m1==1) {
+          Hadm.push(ind2);
+          console.log('push to Hadm=',ind2,' p0m1=',p0m1);
+          p0m1=0;
+        }
+        else {
+          Hadp.push(ind2);
+          console.log('push to Hadp=',ind2,' p0m1=',p0m1);
+          p0m1=1;
+        }
+        ind2=Had2[ind2];
+      } while (ind2 != val1);
 
-
+      for (let ind1=1; ind1<d; ind1++) {
+        ind2=Had2[ind1];
+        if !Hadp.includes(ind2) & !Hadm.includes(ind2)) break;
+      }
+      val1=ind2;
+  } while (ind1==d-1);
 
     console.log('Hadp=',Hadp);
     console.log('Hadm=',Hadm);
