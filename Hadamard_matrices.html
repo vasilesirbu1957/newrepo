@@ -516,10 +516,33 @@ return {a,b}
         if !Hadp.includes(ind2) & !Hadm.includes(ind2)) break;
       }
       val1=ind2;
-  } while (ind1==d-1);
+    } while (ind1==d-1);
+
+    if (p0m1==1) {
+      Hadm.push(ind2);
+      console.log('push to Hadm=',ind2,' p0m1=',p0m1);
+      p0m1=0;
+    }
+    else {
+      Hadp.push(ind2);
+      console.log('push to Hadp=',ind2,' p0m1=',p0m1);
+      p0m1=1;
+    }
 
     console.log('Hadp=',Hadp);
     console.log('Hadm=',Hadm);
+
+    let Had1=[];
+    Had1.length = d;
+    for (let i=0; i<Hadp.length; i++) {
+      ind1=Hadp[i];
+      Had1[ind1]=1;
+    }
+    for (let i=0; i<Hadm.length; i++) {
+      ind1=Hadm[i];
+      Had1[ind1]=-1;
+    }
+    console.log('Had1=',Had1);
     /*
     cubes.forEach((cube, ndx) => {
       const speed = 0.2 + ndx * .00125;
