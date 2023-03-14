@@ -517,7 +517,7 @@ return {a,b}
 //if (p0m1==1) {p0m1=0}
 //else {p0m1=1};
       // console.log('for cycle');
-/*
+
       for (let ind1=1; ind1<d; ind1++) {
         ind2=Had2[ind1];
         if (!(Hadp.includes(ind2) || Hadm.includes(ind2))) {
@@ -529,17 +529,7 @@ return {a,b}
           console.log('element ',ind2,' is included in Hadp or Hadm');
         }
       }
-*/
-      for (let ind1=1; ind1<d; ind1++) {
-        if (!(Hadp.includes(ind1) || Hadm.includes(ind1))) {
-          val1=ind1;
-          ind=ind1;
-          console.log('element ',ind1,' is not included in Hadp or Hadm');
-          break;
-        } else {
-          console.log('element ',ind1,' is included in Hadp or Hadm');
-        }
-      }
+
 
       console.log(' outer do while cycle, ind=',ind,' d-1=',d-1);
     } while (ind != (d-1));
